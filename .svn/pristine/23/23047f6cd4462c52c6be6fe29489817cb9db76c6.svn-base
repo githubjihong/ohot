@@ -1,7 +1,0 @@
-package com.ohot.admin.service;
-
-public interface AdminCommunityService {
-
-	public int getTotalPost();
-
-}
