@@ -1,0 +1,28 @@
+package com.ohot.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.ohot.vo.AuthVO;
+import com.ohot.vo.MemberVO;
+
+public interface MemberService {
+	
+	// 회원가입
+	public int signUp(MemberVO memberVO);
+
+	public List<MemberVO> memberList();
+
+	public MemberVO memberUpdate(MemberVO memberVO);
+
+	// 검색 회원 목록
+	public List<MemberVO> memberSearchList(Map<String, Object> map);
+
+	public int getTotalMember(Map<String, Object> map);
+	
+	public MemberVO memberDetail(MemberVO memberVO);
+
+	// 회원 삭제여부 업뎃
+	public int memberDelete(int memNo);
+	
+}

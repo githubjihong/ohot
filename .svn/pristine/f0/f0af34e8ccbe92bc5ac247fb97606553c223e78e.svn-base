@@ -1,0 +1,121 @@
+package com.ohot.controller;
+
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ohot.service.MypageService;
+import com.ohot.vo.MemberVO;
+import com.ohot.vo.StatsVO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+@RequestMapping("/oho")
+public class MyPageController {
+
+	@Autowired MypageService mypageService;
+	
+	
+	
+	@GetMapping("/mypage/list")
+	public String list(Model model, MemberVO memberVO, Principal principal) {
+		
+		//로그인 된 사용자만 접근 가능하도록 처리
+		if (principal == null) {
+	        log.error("User is not logged in");
+	        return "redirect:/login";  // 로그인 페이지로 리다이렉트
+	    }
+		
+		String id = principal.getName();
+		log.info("id====================== : " + id);
+		
+		memberVO.setMemEmail(id);
+		
+		List<MemberVO> Email = this.mypageService.Email(memberVO);
+		log.info("Email====================== : " + Email);
+		
+		List<MemberVO> NickName = this.mypageService.NickName(memberVO);
+		log.info("NickName====================== : " + NickName);
+		
+		List<MemberVO> name = this.mypageService.name(memberVO);
+		log.info("name====================== : " + name);
+		
+	
+		List<MemberVO> birth = this.mypageService.birth(memberVO);
+		log.info("birth====================== : " + birth);
+		
+		model.addAttribute("Email",Email);
+		model.addAttribute("NickName",NickName);
+		model.addAttribute("name",name);
+		model.addAttribute("birth",birth);
+		log.info("Email==================== : " + Email);
+		log.info("NickName==================== : " + NickName);
+		log.info("name==================== : " + name);
+		log.info("birth==================== : " + birth);
+		
+		return "mypage/list";
+	}
+	
+	/* web에서 이메일 변경한 것을 DB Update
+	 * update 후 -> DB에 값이 바뀜 -> 내정보로 되돌아옴
+	 * 
+	 * SET    MEM_EMAIL = 샵{memEmail}
+		WHERE  MEM_NO = 샵{memNo}
+	 */
+	@ResponseBody
+	@PostMapping("/mypage/updateEmail")
+	public Map<String,Object> updateEmail (@RequestBody MemberVO memberVO, Principal principal) {
+		
+		/*
+		MemberVO(memNo=1, memLastName=null, memFirstName=null, memNicknm=null, memEmail=karina2@naver.com, memTelno=null
+		, memBirth=null, memPswd=null, joinYmd=null, secsnYmd=null, memAccessToken=null, enabled=0
+		, memStatSecCodeNo=null, memSecCodeNo=null, authVOList=null)
+		 */
+		String id = principal.getName();
+		
+		memberVO.setMemEmail(id);
+		
+		log.info("updateEmail->memberVO : " + memberVO);
+		
+		//web에서 이메일 변경한 것을 DB Update
+		int result = this.mypageService.updateEmail(memberVO);
+		
+		//if (data.success) {
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("success", "success");
+		
+		//내정보로 되돌아옴
+		return map;
+	}
+	
+	@ResponseBody
+	@PostMapping("/mypage/updateNick")
+	public Map<String,Object> updateNick (@RequestBody MemberVO memberVO, Principal principal){
+		
+		String nick = memberVO.getMemNicknm();
+		log.info("getMemNicknm->nick : " + nick);
+		
+		memberVO.setMemNicknm(nick);
+		log.info("updateNick->memberVO : " + memberVO);
+		
+		//web에서 이메일 변경한 것을 DB Update
+		int result2 = this.mypageService.updateNick(memberVO);
+		
+		Map<String,Object> map2 = new HashMap<String,Object>();
+		map2.put("success", "success");
+		
+		return map2;
+	}
+}

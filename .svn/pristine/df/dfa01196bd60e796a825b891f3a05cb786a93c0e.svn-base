@@ -1,0 +1,311 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<style>
+	#dmIcon {
+	 line-height: 35px;
+	 color: #F86D72;
+	 position: fixed;
+	 height:45px;
+	 right: 70px;
+	 bottom: 12px;
+	 display: inline-flex;
+	 align-items: center;
+	 background: floralwhite;
+	 border-radius: 50px;
+	 padding: 3px 20px;
+	 box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+	 font-family: sans-serif;
+	 font-weight: bold;
+	 border: 1px solid #e5e7eb;
+	 z-index: 9;
+   }
+   #dmList {
+	   position: fixed;
+	   overflow: hidden;
+	   width:0;
+	   height:0;
+	   right: 70px;
+	   bottom:11px;
+	   background-color: white;
+	   z-index: 10;
+	   border-radius: 10px;
+	   border: 1px solid #e5e7eb;
+	   text-align: center;
+	   color: #F86D72; 
+   } 
+
+   .dmIcon-circle {
+	 width: 24px;
+	 height: 24px;
+	 background-color: #F86D72;
+	 border-radius: 50%;
+	 display: flex;
+	 align-items: center;
+	 justify-content: center;
+	 margin-right: 8px;
+   }
+   .dmIcon-circle svg {
+	 width: 14px;
+	 height: 14px;
+	 fill: white;
+   }
+   .dmIcon-text {
+	 margin-right: 6px;
+	 color: #F86D72;
+   }
+
+   .artist-group {
+    margin-bottom: 40px;
+  }
+
+  .artist-group-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  .artist-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .artist-card {
+    width: 100px;
+    text-align: center;
+  }
+
+  .artist-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 20px;
+    object-fit: cover;
+    position: relative;
+  }
+
+  .artist-name {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .badge-icon {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: white;
+    border-radius: 50%;
+    padding: 3px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .filter-buttons {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .filter-buttons::-webkit-scrollbar {
+    display: none;
+  }
+  .tab{
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            color: white;
+        }
+
+</style>
+</head>
+<body>
+	<div>
+		<div class="dm-button" id="dmIcon"  onclick="fShow()">
+            <div class="dmIcon-circle">
+            <svg viewBox="0 0 24 24">
+                <path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/>
+            </svg>
+            </div>
+            <div class="dmIcon-text"> Message</div>
+        </div>
+	</div>
+
+	<!-- dm List-->
+	<div id="dmList" class="card row" style="overflow-y:auto;">
+		<div class="col-md-1 d-flex flex-column p-2">
+			<a href="#" data-dm-num="0" onclick="subscribeTab(this)"><i class="bi bi-person-add"
+					style="cursor:pointer; font-size: 1.8rem;"></i></i></a>
+			<a href="#" data-dm-num="1" onclick="msgTab(this)" class="mt-2"><i class="bi bi-chat-heart"
+					style="cursor:pointer; font-size: 1.8rem;"></i></a>
+		</div>
+	
+		<div id="tabMain">
+			<div class="tab" id="artistList"  style="z-index:20; background-color: #F86D72;">탭테스트</div>
+			<div class="tab" id="myArtistList" style="background-color: aqua;">구독테스트</div>
+		</div>
+		<!-- <div class="col-md-11">
+			<div class="card-header d-flex justify-content-between align-items-center">
+				<ul class="nav ms-5" id="artistTab" role="tablist">
+					<li class="nav-item me-5" role="presentation">
+						<a class="nav-item  " id="my-artist-tab" data-toggle="tab" href="#my-artist" role="tab">
+							<h5>나의 아티스트</h5>
+						</a>
+					</li>
+					<li class="nav-item" role="presentation">
+						<a class="nav-item active" id="recommend-artist-tab" data-toggle="tab" href="#recommend-artist"
+							role="tab">
+							<h5>추천 아티스트</h5>
+						</a>
+					</li>
+				</ul>
+				<div class="d-flex align-items-center">
+					<i class="bi bi-search mx-2" style="cursor:pointer; font-size: 1.5rem;"></i>
+					<i class="bi bi-chevron-bar-down mx-2" style="cursor:pointer; font-size: 1.6rem;" onclick="fHide()"></i>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="tab-content" id="artistTabContent" style="min-height: 300px;">
+					<div class="tab-pane fade show active" id="my-artist" role="tabpanel">
+						 나의 아티스트 목록 
+						<div id="myArtistList" class="d-flex flex-wrap justify-content-center align-items-center mt-3">
+							아티스트 데이터 JS로 삽입
+						</div>
+					</div>
+					<div class="tab-pane fade" id="recommend-artist" role="tabpanel">
+						추천 아티스트 목록
+	
+						<div id="recommendArtistList"
+							class="d-flex flex-wrap justify-content-center align-items-center mt-3">
+							추천 아티스트 데이터 JS로 삽입
+	
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> -->
+	</div>
+
+<script type="text/javascript">
+const dmTabs =document.querySelectorAll(".tab");
+
+
+function subscribeTab(subTab){
+	event.preventDefault();
+	alert("전체 아티스트 나와랍");
+
+	//탭 초기화
+	for(let i=0; i<dmTabs.length; i++){
+		dmTabs[i].style.zIndex =11 ;    
+	}
+
+	dmTabs[subTab.dataset.dmNum].style.zIndex =20;
+
+	axios.post("/oho/dm/artistList").then(resp=>{
+		const artistAllList = resp.data;
+		console.log("전체 아티스트 목록 : ", artistAllList);
+	})
+
+}
+
+function msgTab(msgTab){
+	event.preventDefault();
+	alert("메세지 탭 나와랍");
+
+	//탭 초기화
+	for(let i=0; i<dmTabs.length; i++){
+		dmTabs[i].style.zIndex =11 ;    
+	}
+
+	dmTabs[msgTab.dataset.dmNum].style.zIndex =20;
+}
+
+function fShow(){
+	if(!dmList.style.width){
+		dmList.style.width="0px";
+		dmList.style.height="0px";
+	}
+	dmList.style.width=parseInt(dmList.style.width)+10 + "px";
+	dmList.style.height=parseInt(dmList.style.height)+10 + "px";
+
+	if(parseInt(dmList.style.width) >= 800){
+		fn_artistList()
+		
+		return;
+	} 
+	setTimeout(fShow,5);
+}
+
+function fHide(){
+	dmList.style.width=parseInt(dmList.style.width)-15 + "px";
+	dmList.style.height=parseInt(dmList.style.height)-15 + "px";
+
+	if(parseInt(dmList.style.width) <=0) return;
+	setTimeout(fHide,3);
+}
+/* 
+function fn_artistList(){
+	// 2. 구독중인 아티스트를 제외한 모든 아티스트 목록을 보여줌 -> 누르면 구독/결재 모달 띄우기
+	axios.post("/oho/dm/myArtistList")
+		.then(response => {
+			const data = response.data;
+			
+			console.log("나의 아티스트 목록 : ", data);
+			const myArtistListDiv = document.getElementById("myArtistList");
+			myArtistListDiv.innerHTML = ""; // 기존 목록 비우기
+
+			let artistLink =`
+			<div class="filter-buttons mb-3">
+				그룹이름을 넣자
+			  </div>`;
+			  myArtistListDiv.insertAdjacentHTML('beforeend', artistLink);
+
+			if (data.length > 30) {
+				data.forEach(artist => {
+					
+					const artistName = artist.artistName;
+					const artistNo = artist.artistNo;
+					const artistImg = artist.artistImg;
+					 artistLink = `
+						<div class="DirectMessageArtistListStallItemView_community_wrap__z0WMz">
+							 
+							<strong class="DirectMessageArtistListStallItemView_community_name__nzCK+">
+								CHUU
+							</strong>
+							<ul class="DirectMessageArtistListStallItemView_artist_list__0s8TM">
+								<li class="artist_item">
+									<div role="button" tabindex="0" class="DivAsButtonView_div_as_button__jl7Xf">
+										<div class="DirectMessageArtistListStallItemView_image_wrap__Hgw7f">
+											<div class="DirectMessageArtistListStallItemView_thumbnail_wrap__oEENP" style="aspect-ratio: auto 154 / 154;">
+												<img src="https://phinf.wevpstatic.net/MjAyNTA0MTZfMTU4/MDAxNzQ0NzgyNjc3NTkz.6CNGAuqY9X7HfpM8rj9-cTJMbo_CGk2oBb4ZP-4N-rUg.wBoqDnHBCA5ho0YM2wyXKb2Gk1j97V-NKfSi9ku4QCIg.JPEG/116c9478-f565-44de-845b-d4c68a1ef2a6.jpeg?type=s360" width="154" height="154">
+											</div>
+											
+										</div>
+										<div class="DirectMessageArtistListStallItemView_artist_name__tD3fn">
+											츄
+										</div>
+									</div>
+								</li>
+							</ul>
+						</div>
+					`;
+					myArtistListDiv.insertAdjacentHTML('beforeend', artistLink);
+				});
+			} else {
+				myArtistListDiv.innerHTML = "<p>구독중인 아티스트가 없습니다.</p>";
+			}
+		})
+		.catch(error => {
+			console.error("Error fetching my artists:", error);
+		});
+}
+ */
+//달러(function)
+document.addEventListener("DOMContentLoaded", function() {
+
+
+	
+});
+
+</script> 
+</body>  
+</html>

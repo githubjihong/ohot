@@ -1,0 +1,54 @@
+package com.ohot.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.ohot.vo.StatsVO;
+
+@Mapper
+public interface StatsMapper {
+
+
+
+	public List<StatsVO> statsList(StatsVO statsVO);
+
+	public List<StatsVO> listBarAjax(StatsVO statsVO);
+
+	public StatsVO listdoughnutAjax(StatsVO statsVO);
+
+	public List<StatsVO> SubscriptionTotal(StatsVO statsVO);
+
+	public List<StatsVO> memberTotal(StatsVO statsVO);
+
+	public List<StatsVO> FollowersTotal(StatsVO statsVO);
+	
+	public List<StatsVO> goodTotal(StatsVO statsVO);
+
+	public List<StatsVO> volume(StatsVO statsVO);
+
+	public int pazing(Map<String, Object> map);
+
+	public List<StatsVO> listMemberAjax(StatsVO statsVO);
+
+	public List<StatsVO> communityMember(StatsVO statsVO);
+
+	public List<StatsVO> goodcnt(StatsVO statsVO);
+
+	public List<StatsVO> goodNm(StatsVO statsVO);
+
+	public List<StatsVO> editPost(StatsVO statsVO);
+
+	public List<StatsVO> listdoughnutAjax2(StatsVO statsVO);
+
+	public List<StatsVO> goodsStatistics(Map<String, Object> map);
+
+	public int getTotal(Map<String, Object> map);
+
+	public List<StatsVO> topList(StatsVO statsVO);
+
+	public List<StatsVO> GoodsStatisticsAjax(StatsVO statsVO);
+
+
+}

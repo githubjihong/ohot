@@ -1,0 +1,78 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>E7E 달력</title>
+    <link rel="stylesheet" href="/adminlte/plugins/bootstrap/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="/adminlte/plugins/fontawesome-free/css/all.min.css"/>
+<link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css"/>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+
+ <script>
+        $(document).ready(function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'ko',
+                selectable: true,
+                editable: true,
+                events: [],
+                select: function(info) {
+                    $('#startDate').val(info.startStr);
+                    $('#endDate').val(info.endStr);
+                    $('#eventModal').show();
+                },
+                
+            });
+            calendar.render();
+            
+            window.addEvent = function () {
+                var title = $('#eventTitle').val();
+                var start = $('#startDate').val();
+                var end = $('#endDate').val();
+                var textColor = $('#textColor').val();
+                var bgColor = $('#bgColor').val();
+                
+                if (title) {
+                    calendar.addEvent({
+                        title: title,
+                        start: start,
+                        end: end,
+                        textColor: textColor,
+                        backgroundColor: bgColor
+                    });
+                }
+                $('#eventModal').hide();
+            }
+            
+            window.closeModal = function () {
+                $('#eventModal').hide();
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>E7E 달력</h1>
+    <div id="calendar"></div>
+    
+    <!-- 일정 추가 모달 -->
+    <div id="eventModal" style="display:none; background-color: pink; padding: 20px; width: 300px;">
+        <h2>E7E 일정 추가</h2>
+        <label>제목: <input type="text" id="eventTitle"></label><br>
+        <label>시작 날짜 및 시간: </label>
+<input type="datetime-local" id="startDate" step="1800" required><br>
+
+<label>종료 날짜 및 시간: </label>
+<input type="datetime-local" id="endDate" step="1800" required><br>
+        <label>글자색: <input type="color" id="textColor" value="#000000"></label>
+        <label>배경색: <input type="color" id="bgColor" value="#ff0000"></label>
+        <br><br>
+        <button onclick="closeModal()">취소</button>
+        <button onclick="addEvent()">생성</button>
+    </div>
+    
+   
+</body>
+</html>

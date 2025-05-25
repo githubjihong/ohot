@@ -1,0 +1,117 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@ include file="/WEB-INF/views/header.jsp" %>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<sec:authorize access="isAuthenticated()">
+	<sec:authentication var="userVO" property="principal.usersVO"/>
+</sec:authorize>
+<p>유저 정보</p>
+${userVO}
+<p>문의게시글정보</p>
+${boardPostVO}
+
+<div class="container mt-5">
+    <button onClick="location.href='/oho/inquiryPost'"><</button>
+   <div class="row my-3" style="border:solid 2px gray; border-radius:10px;">
+       <div class="col">
+           <!-- Post content-->
+           <article>
+               <!-- Post header-->
+               <header class="mb-4">
+                   <!-- Post title-->
+                   <c:if test="${boardPostVO.parentPostNo != 0}">
+                   	  <div class="mt-3">
+	                   	  <a href="/oho/inquiryPost/detail?boardNo=${boardPostVO.parentPostNo}">원문 보러가기</a>
+                   	  </div>
+                   </c:if>
+                   <h6 class="fw-bolder pt-5">
+                       ${boardPostVO.inquiryPostVO.inqTypeNm}
+                   </h6>
+                   <h2 class="fw-bolder mb-1 pt-2">
+                       ${boardPostVO.bbsTitle}
+                   </h2>
+                   <br>
+                   <div class="text-muted fst-italic mb-2">${boardPostVO.bbsRegDt}</div>
+                   <a class="badge bg-secondary text-decoration-none link-light" href="#!">${boardPostVO.inquiryPostVO.inqWriter}</a>
+		           <hr>
+               </header>
+               <!-- Preview image figure-->
+				<c:if test="${boardPostVO.fileGroupNo != 0}">
+               		<figure class="mb-4"><img class="img-fluid rounded" src="https://dummyimage.com/900x400/ced4da/6c757d.jpg" alt="..."></figure>
+               </c:if>
+               <!-- Post content-->
+               <section class="mb-3">
+                   <p class="fs-5 mb-4">${boardPostVO.bbsHtmlCn}</p>
+               </section>
+           </article>
+           <!-- Comments section-->
+         <c:if test="${boardPostVO.parentPostNo == 0}">
+	           	<section>
+	               <div class="card bg-light">
+	                   <div class="card-body">
+	                       <!-- Comment form-->
+	                       <!-- Comment with nested comments-->
+	                       <div class="d-flex mb-4">
+	                           <!-- Parent comment-->
+	                           <div class="ms-3">
+	                           <c:choose>
+	                           		<c:when test="${boardPostVO.inquiryPostVO.ansYn=='미답변'}">
+		                           		<h5 class="fw-bolder mb-1">죄송합니다. 아직 등록된 답글이 없습니다.</h5>
+	                           		</c:when>
+	                           	<c:otherwise>
+	                           		<c:if test="${boardPostVO.replyPostVO != null}">
+	                           			<c:set var="replyPost" value="${boardPostVO.replyPostVO}" />
+	                           			<div class="d-flex flex-row bd-highlight">
+		                           		 	<h5 class="fw-bolder mb-1 me-4">등록된 답변</h5>
+		                           		 	<a href="/oho/inquiryPost/detail?boardNo=${replyPost.bbsPostNo}">자세히 보기</a>
+	                           			</div>
+		                               	<div class="d-flex mt-4">
+		                                   <div class="ms-3">
+		                                   	  <div class="fw-bold">${replyPost.bbsTitle}</div>
+		                                       ${replyPost.bbsCn}
+		                                   </div>
+		                               	</div>
+	                           		</c:if>
+	                           	</c:otherwise>
+	                           </c:choose>
+	                           </div>
+	                       </div>
+	                    </div>
+	                </div>
+	            </section>
+            </c:if>
+        </div>
+    </div>
+    
+    <!-- 순수 텍스트만의 게시글 -->
+    <input type="hidden" id="bbsCn" name="bbsCn" value="${boardPostVO.bbsCn}">
+    
+    <c:if test="${userVO.userNo == boardPostVO.inquiryPostVO.memNo}">
+    	<div class="d-flex flex-row-reverse bd-highlight gap-2">
+    		<form action="/oho/inquiryPost/deletePost" method="get">
+    			<input type="hidden" name="bbsPostNo" value="${boardPostVO.bbsPostNo}" />
+			    <button>삭제</button>
+    		</form>
+    		<form action="/oho/inquiryPost/createPost" method="get">
+    			<input type="hidden" name="bbsPostNo" value="${boardPostVO.bbsPostNo}" />
+			    <button>수정</button>
+    		</form>
+    	</div>
+    </c:if>
+</div>
+
+<script>
+//게시글 삭제버튼을 눌렀을 때
+
+</script>
+
+<%@ include file="/WEB-INF/views/footer.jsp" %>
+</body>
+</html>

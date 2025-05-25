@@ -1,0 +1,22 @@
+package com.ohot.mapper;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.ohot.vo.EmployeeVO;
+import com.ohot.vo.MemberVO;
+import com.ohot.vo.UsersVO;
+
+@Mapper
+public interface UsersMapper {
+	
+
+	// email로 사용자의 정보 조회
+	public UsersVO findByEmail(String userMail);
+	
+	// email로 memberVO 조회
+	public MemberVO findByEmailMember(String userMail);
+	
+	// email로 관리자 및 직원 정보 조회
+	public EmployeeVO findByEmailAdmin(String userMail);
+	
+}

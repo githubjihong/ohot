@@ -1,0 +1,70 @@
+package com.ohot.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
+
+import com.ohot.mapper.UsersMapper;
+import com.ohot.vo.CustomUser;
+import com.ohot.vo.UserAuthVO;
+import com.ohot.vo.UsersVO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class CustomOAuth2UserServiceImpl implements OAuth2UserService<OAuth2UserRequest, OAuth2User>{
+
+	@Autowired
+    private UsersMapper usersMapper;
+	 
+	@Override
+	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
+		
+		Map<String, Object> attributes = oAuth2User.getAttributes();
+	    Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+	    String email = (String) kakaoAccount.get("email");
+	    log.info("loadUser -> email : " + email);
+		
+		// 간편로그인/가입 사용자 정보 추출
+        String provider = userRequest.getClientRegistration().getRegistrationId(); // "kakao"
+        String providerId = oAuth2User.getAttribute("id").toString();
+        String username = provider + "_" + providerId;
+        log.info("provider : " + provider);
+        log.info("providerId : " + providerId);
+        log.info("username : " + username);
+        
+        UsersVO usersVO = this.usersMapper.findByEmail(email);
+        
+        log.info("loadUser -> usersVO : " + usersVO);
+        
+        if(usersVO == null ) { // 신규회원
+        	
+        	// 신규회원처리 -> 임시 usersVO 생성
+        	usersVO = new UsersVO();
+        	
+        	List<UserAuthVO> authList = new ArrayList<>();
+        	UserAuthVO auth = new UserAuthVO();
+        	auth.setAuthNm("ROLE_TEMP");
+        	authList.add(auth);
+        	usersVO = new UsersVO();
+            usersVO.setUserMail(email);
+            usersVO.setUserPswd("kakao");
+            usersVO.setUserAuthList(authList); // 가입 전 임시 권한
+            
+        }
+        
+        return new CustomUser(usersVO);
+		
+	}
+
+}

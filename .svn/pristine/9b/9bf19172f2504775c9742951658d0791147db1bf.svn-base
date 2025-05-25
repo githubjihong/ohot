@@ -1,0 +1,18 @@
+package com.ohot.home.media.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.ohot.home.media.vo.MediaPostVO;
+
+public interface MediaLiveBoardService {
+
+	public List<MediaPostVO> getMediaList();
+	
+	public List<MediaPostVO> getMediaSerchList(Map<String, Object> params);
+	
+	// 미디어Post 상세
+	public MediaPostVO getMediaDetail(Map<String, Object> parmas);
+}

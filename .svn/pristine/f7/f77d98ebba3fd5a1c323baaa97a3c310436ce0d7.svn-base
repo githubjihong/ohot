@@ -1,0 +1,107 @@
+package com.ohot.employee.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ohot.employee.mapper.EmployeeMapper;
+import com.ohot.employee.service.EmployeeService;
+import com.ohot.employee.vo.AtrzDocVO;
+import com.ohot.employee.vo.AtrzLineVO;
+import com.ohot.employee.vo.AtrzRefVO;
+import com.ohot.employee.vo.DepartmentVO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class EmployeeServiceImpl implements EmployeeService {
+
+	@Autowired
+	EmployeeMapper employeeMapper;
+	
+	@Override
+	public List<DepartmentVO> treeList() {
+		return this.employeeMapper.treeList();
+	}
+
+	@Transactional
+	@Override
+	public int atrzDocInsert(AtrzDocVO atrzDocVO) {
+		
+		/*
+		 * atrzDocPost : AtrzDocVO(atrzDocNo=null, docFmNo=2, drftTtl=, drftCn=테스트입니다,
+		 * emrgYn=N, drftYmd=null, ddlnYmd=null, drftEmpNo=202503240016,
+		 * offcsPhoto=null, drftJbgdCd=P01, fileGroupNo=0, drftStampFileGroupNo=0,
+		 * prefix=null, atrzRefVOList=[AtrzRefVO(atrzRefNo=0, refEmpNo=202301010005,
+		 * atrzDocNo=null, atrzIdntyYn=null, refJbgdCd=P05), AtrzRefVO(atrzRefNo=0,
+		 * refEmpNo=202301010010, atrzDocNo=null, atrzIdntyYn=null, refJbgdCd=P04),
+		 * AtrzRefVO(atrzRefNo=0, refEmpNo=202301010025, atrzDocNo=null,
+		 * atrzIdntyYn=null, refJbgdCd=P03)], atrzLineVOList=[AtrzLineVO(atrzLnNo=0,
+		 * atrzDocNo=null, atrzEmpNo=202301010004, atrzStts=null, atrzOpnn=null,
+		 * rjctRsn=null, atrzDt=null, atrzSn=0, aprvrJbgdCd=P05, aprvrOffcsPhoto=null,
+		 * lastAtrzYn=null, aprvrStampFileGroupNo=0), AtrzLineVO(atrzLnNo=0,
+		 * atrzDocNo=null, atrzEmpNo=202301010009, atrzStts=null, atrzOpnn=null,
+		 * rjctRsn=null, atrzDt=null, atrzSn=0, aprvrJbgdCd=P04, aprvrOffcsPhoto=null,
+		 * lastAtrzYn=null, aprvrStampFileGroupNo=0)],
+		 * approvedConcertPlanVO=ApprovedConcertPlanVO(conPlanNo=0, atrzDocNo=null,
+		 * gdsNm=에스파, tkCtgr=콘서트, tkLctn=아카데미홀, playerNm=에스파, hostOrg=오호엔터,
+		 * expectedAudience=10000, expectedBudget=40000000, background=테스트입니다,
+		 * requests=테스트를할거에요, remarks=하하하ㅏ, regYmd=null))
+		 */
+		
+		String atrzDocNo = this.employeeMapper.atrzDocSelectKey(atrzDocVO);
+		log.info("atrzDocNO 안믿겨서 확인 : " +  atrzDocNo);
+		
+		atrzDocVO.setAtrzDocNo(atrzDocNo);
+		
+		// 결재문서 테이블 insert
+		int result = this.employeeMapper.atrzDocInsert(atrzDocVO);
+		
+		// 결재선 테이블 insert
+		if(atrzDocVO.getAtrzLineVOList()!=null) {
+			int sn = 0;
+			for(AtrzLineVO atrzLineVO : atrzDocVO.getAtrzLineVOList()) {
+				atrzLineVO.setAtrzDocNo(atrzDocNo);
+				
+				// sn 부여
+				sn++;
+				atrzLineVO.setAtrzSn(sn);
+				
+				this.employeeMapper.atrzLineInsert(atrzLineVO);
+				
+			}
+		}
+		
+		// 결재 참조 테이블 insert
+		if(atrzDocVO.getAtrzRefVOList() != null) {
+			for(AtrzRefVO atrzRefVO : atrzDocVO.getAtrzRefVOList()) {
+				atrzRefVO.setAtrzDocNo(atrzDocNo);
+				
+				this.employeeMapper.atrzRefInsert(atrzRefVO);
+			}
+		}
+		  
+		// 공연기획 최종승인 테이블 insert
+		if(atrzDocVO.getApprovedConcertPlanVO()!=null) {
+			
+			atrzDocVO.getApprovedConcertPlanVO().setAtrzDocNo(atrzDocNo);
+			
+			this.employeeMapper.approvedConcertPlanInsert(atrzDocVO.getApprovedConcertPlanVO());
+		}
+		
+		log.info("atrzDocInsert->result : "+ result);
+		
+		return result;
+	}
+
+	@Override
+	public DepartmentVO atrzDocDetail(AtrzDocVO atrzDocVO) {
+		return this.employeeMapper.atrzDocDetail(atrzDocVO);
+	}
+
+
+
+}

@@ -1,0 +1,145 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>oHoT Admin</title>
+</head>
+<body class="sidebar-mini" style="height: auto;">
+	<div class="wrapper">
+		<c:set var="title" value="아티스트 그룹 관리"></c:set>
+		<!-- 관리자 헤더네비바  -->
+		<%@ include file="../adminHeader.jsp"%>
+
+		<!-- 관리자 사이드바 -->
+		<%@ include file="../adminSidebar.jsp"%>
+
+		<!-- 컨텐츠-->
+		<div class="content-wrapper" style="padding: 20px;">
+			<!-- 검색 옵션 영역 -->
+			<div class="serch-option">
+				<div class="card card-primary">
+					<div class="card-header">
+						<h3 class="card-title">검색 옵션</h3>
+					</div>
+					<!-- /.card-header -->
+					<!-- form start -->
+					<form id="searchForm">
+						<div class="card-body">
+						    <div class="form-row">
+						        <!-- 아티스트 그룹 선택 -->
+						        <div class="form-group col-md-2">
+						            <label for="artGroupNm">아티스트 그룹명</label> 
+						            <select id="artGroupNm" name="artGroupNm" class="form-control select2bs4">
+						                <option value="all">전체</option>
+						                <c:forEach var="artistGroupVO" items="${artistGroupVOList}" varStatus="stat">
+						                    <option value="${artistGroupVO.artGroupNm}">${artistGroupVO.artGroupNm}</option>
+						                </c:forEach>
+						            </select>
+						        </div>
+						
+						        <!-- 시작일 -->
+						        <div class="form-group col-md-2">
+						            <label>등록 일자 범위(시작)</label>
+						            <div class="input-group date" data-target-input="nearest">
+						                <input id="startDate" name="startDate" type="text" class="form-control datetimepicker-input" data-target="#startDate">
+						                <div class="input-group-append" data-target="#startDate" data-toggle="datetimepicker">
+						                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+						                </div>
+						            </div>
+						        </div>
+						
+						        <!-- 종료일 -->
+						        <div class="form-group col-md-2">
+						            <label>등록 일자 범위(끝)</label>
+						            <div class="input-group date" data-target-input="nearest">
+						                <input id="endDate" name="endDate" type="text" class="form-control datetimepicker-input" data-target="#endDate">
+						                <div class="input-group-append" data-target="#endDate" data-toggle="datetimepicker">
+						                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+						                </div>
+						            </div>
+						        </div>
+						
+						        <!-- 데뷔 일자 -->
+						        <div class="form-group col-md-2">
+						            <label for="artGroupDebutYmd">데뷔 일자</label>
+						            <input type="text" id="artGroupDebutYmd" name="artGroupDebutYmd" placeholder="검색어 입력" class="form-control" />
+						        </div>
+						
+						        <!-- 삭제 여부 -->
+						        <div class="form-group col-md-2">
+						            <label for="artGroupDelYn">서비스 중단 여부</label>
+						            <select id="artGroupDelYn" name="artGroupDelYn" class="form-control select2bs4">
+						                <option value="all" selected="selected">전체</option>
+						                <option value="Y">예</option>
+						                <option value="N">아니오</option>
+						            </select>
+						        </div>
+						    </div>
+						</div>
+
+						<!-- card-footer -->
+						<div class="card-footer d-flex justify-content-end">
+							<button type="button" class="btn btn-dark mr-2" id="btnReset">초기화</button>
+							<button type="button" class="btn btn-primary" id="btnSearch">검색</button>
+						</div>
+					</form>
+				</div>
+			</div>
+			<!-- 검색옵션 끝 -->
+
+			<div class="card card-primary">
+				<div class="card-header ">
+					<h3 class="card-title">아티스트 그룹 목록</h3>
+				</div>
+				<!-- /.card-header -->
+				<div class="card-body">
+					<div id="example2_wrapper" class="dataTables_wrapper dt-bootstrap4">
+						<div class="row">
+							<div class="col-sm-12 col-md-6"></div>
+							<div class="col-sm-12 col-md-6"></div>
+						</div>
+						<div class="row">
+							<div class="d-flex justify-content-end">
+								<a type="button" class="btn btn-primary mr-2 mb-3" href="/admin/artistGroup/artistGroupRegister">+ 그룹 등록</a>
+							</div>	
+							<div class="col-sm-12">
+								<table id="example2" class="table table-bordered table-hover dtr-inline"
+									aria-describedby="example2_info" style="text-align: center">
+									<thead>
+										<tr>
+											<th>목록 번호</th>
+											<th>대표 로고</th>
+											<th>아티스트 그룹명</th>
+											<th>그룹 데뷔 일자</th>
+											<th>그룹 등록 일자</th>
+											<th>서비스 중단 여부</th>
+											<th>수정</th>
+										</tr>
+									</thead>
+									<tbody id="listBody">
+										
+									</tbody>
+									<tfoot>
+									</tfoot>
+								</table>
+							</div>
+							<!-- 페이징 들어갈 영역  -->
+							<div id="pagination-container" class="d-flex justify-content-center mt-3"></div>
+						</div>
+					</div>
+				</div>
+				<!-- /.card-body -->
+			</div>
+		</div>
+
+	<!-- 관리자 풋터 -->
+	<%@ include file="../adminFooter.jsp"%>
+
+	</div>
+<script src="/js/artistGroup/artistGroupList.js"></script>
+</body>
+</html>

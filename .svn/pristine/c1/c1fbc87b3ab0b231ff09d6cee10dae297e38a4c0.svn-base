@@ -1,0 +1,125 @@
+package com.ohot.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.ohot.mapper.ArtistMapper;
+import com.ohot.mapper.MemberMapper;
+import com.ohot.service.MemberService;
+import com.ohot.util.UploadController;
+import com.ohot.vo.AuthVO;
+import com.ohot.vo.MemberVO;
+
+import lombok.extern.slf4j.Slf4j;
+
+// UserService가 우리가 만든 interface
+@Slf4j
+@Service
+public class MemberServiceImpl implements MemberService{
+	
+	@Autowired
+	MemberMapper memberMapper;
+	
+	@Autowired
+	ArtistMapper artistMapper;
+	
+	@Autowired
+	UploadController uploadController;
+	
+	@Autowired
+	BCryptPasswordEncoder bCryptPasswordEncoder;
+	
+	// 회원가입
+	@Override
+	public int signUp(MemberVO memberVO) {
+		String memPswd = memberVO.getMemPswd();
+		memPswd = this.bCryptPasswordEncoder.encode(memPswd);
+		
+		memberVO.setMemPswd(memPswd); // 암호화된 패스워드를 set
+		
+		int result = this.memberMapper.signUp(memberVO);
+		log.info("signUp -> result : " + result);
+		
+		return result;
+	}
+
+	@Override
+	public List<MemberVO> memberList() {
+		return this.memberMapper.memberList();
+	}
+
+	@Transactional
+	@Override
+	public MemberVO memberUpdate(MemberVO memberVO) {
+		
+		memberVO.setMemTelno(memberVO.getMemTelno().replaceAll("-", ""));
+		memberVO.setMemBirth(memberVO.getMemBirth().replaceAll("-", ""));
+		memberVO.setJoinYmd(memberVO.getJoinYmd().replaceAll("-", ""));
+		memberVO.setSecsnYmd(memberVO.getSecsnYmd().replaceAll("-", ""));
+		
+		// 회원 구분 선택이 M01 -> 일반회원 일 때
+		if("M01".equals(memberVO.getMemStatSecCodeNo())) {
+			this.memberMapper.memberUpdate(memberVO);
+			
+			return this.memberMapper.memberDetail(memberVO);
+		
+		}else{// 회원 구분 선택이 M02->아티스트일 경우
+			
+			MultipartFile[] multipartFiles = memberVO.getArtistVO().getUploadFile();
+			
+			// 처음 아티스트 정보 입력해줄 경우
+			if(memberVO.getArtistVO().getArtNo() == 0) {
+				this.memberMapper.memberUpdate(memberVO);
+				this.memberMapper.authUpdate(memberVO);
+					
+				if(multipartFiles[0] != null && multipartFiles[0].getOriginalFilename().length() > 0) {
+					long fileGroupNo = this.uploadController.multiImageUpload(multipartFiles);
+					memberVO.getArtistVO().setFileGroupNo(fileGroupNo);
+				}
+				
+				this.artistMapper.artistInsert(memberVO.getArtistVO());
+				
+			}else {// 아티스트 정보가 들어있고 수정할 경우
+				this.memberMapper.memberUpdate(memberVO);
+				
+				if(multipartFiles[0] != null && multipartFiles[0].getOriginalFilename().length() > 0) {
+					long fileGroupNo = memberVO.getArtistVO().getFileGroupNo();
+					this.uploadController.multiImageUploadTOFileDetail(fileGroupNo, multipartFiles);
+					memberVO.getArtistVO().setFileGroupNo(fileGroupNo);
+				}
+				
+				this.artistMapper.artistDetail(memberVO.getArtistVO());
+			}
+			
+			return this.memberMapper.modalDetailInfo(memberVO);
+		}
+		
+	}
+
+	@Override
+	public List<MemberVO> memberSearchList(Map<String, Object> map) {
+		return this.memberMapper.memberSearchList(map);
+	}
+
+	@Override
+	public int getTotalMember(Map<String, Object> map) {
+		return this.memberMapper.getTotalMember(map);
+	}
+
+	@Override
+	public MemberVO memberDetail(MemberVO memberVO) {
+		return this.memberMapper.memberDetail(memberVO);
+	}
+
+	@Override
+	public int memberDelete(int memNo) {
+		return this.memberMapper.memberDelete(memNo);
+	}
+
+}

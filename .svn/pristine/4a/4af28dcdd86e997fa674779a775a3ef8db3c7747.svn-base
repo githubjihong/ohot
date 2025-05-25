@@ -1,0 +1,64 @@
+package com.ohot.home.media.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.ohot.home.media.mapper.MediaLiveBoardMapper;
+import com.ohot.home.media.service.MediaLiveBoardService;
+import com.ohot.home.media.vo.MediaPostVO;
+import com.ohot.vo.ArtistGroupVO;
+
+@Service
+public class MediaLiveBoardServiceImpl implements MediaLiveBoardService{
+
+	@Autowired
+	MediaLiveBoardMapper mediaLiveBoardMapper; 
+	
+	@Override
+	public List<MediaPostVO> getMediaList() {
+		
+		return mediaLiveBoardMapper.getMediaList();
+	}
+
+	@Override
+	public List<MediaPostVO> getMediaSerchList(Map<String, Object> params) {
+		
+		return mediaLiveBoardMapper.getMediaSerchList(params);
+	}
+
+	@Override
+	public MediaPostVO getMediaDetail(Map<String, Object> parmas) {
+		
+		return mediaLiveBoardMapper.getMediaDetail(parmas);
+	}
+
+	@Override
+	public int createPost(MediaPostVO mediaPostVO) {
+		return mediaLiveBoardMapper.createPost(mediaPostVO);
+	}
+
+	@Override
+	public int deleteMediaPost(Integer mediaPostNo) {
+		
+		return mediaLiveBoardMapper.deleteMediaPost(mediaPostNo);
+	}
+
+	@Override
+	public int updateMediaPost(MediaPostVO mediaPostVO) {
+		
+		return mediaLiveBoardMapper.updateMediaPost(mediaPostVO);
+	}
+
+	@Override
+	public List<ArtistGroupVO> getArtistGroupList() {
+		
+		return mediaLiveBoardMapper.getArtistGroupList();
+	}
+	
+	
+
+}

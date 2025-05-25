@@ -1,0 +1,34 @@
+package com.ohot.admin.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.ohot.home.inquiry.service.InquiryPostService;
+import com.ohot.home.inquiry.vo.InquiryTypeVO;
+
+import lombok.extern.slf4j.Slf4j;
+
+
+@Slf4j
+@RequestMapping("/admin/inquiryPost")
+@Controller
+public class AdminInquiryPostController {
+
+	@Autowired
+	InquiryPostService inquiryPostService;
+	
+	@GetMapping("")
+	public String getMethodName(Model model) {
+		List<InquiryTypeVO> inqTypeVOList = this.inquiryPostService.getInqTypeVO();
+		log.info("inqTypeVOList : " + inqTypeVOList);
+		model.addAttribute("inqTypeVOList", inqTypeVOList);
+		
+		return "admin/inquiryPost/adInquiryPost";
+	}
+	
+}

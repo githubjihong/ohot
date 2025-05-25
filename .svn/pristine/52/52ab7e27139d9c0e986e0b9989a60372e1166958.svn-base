@@ -1,0 +1,199 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<title>미디어 게시글 등록</title>
+<script src="/adminlte/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+</head>
+<body class="sidebar-mini" style="height: auto;">
+<div class="wrapper">	
+    <!-- 관리자 헤더네비바  -->
+    <%@ include file="../adminHeader.jsp"%>
+    
+    <!-- 관리자 사이드바 -->
+    <%@ include file="../adminSidebar.jsp"%>
+
+    <!-- 컨텐츠-->
+    <div class="content-wrapper" style="padding: 20px">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">미디어 게시글 등록</h3>
+            </div>
+            
+            <!-- 폼 시작 -->
+            <form id="createPostForm" action="/admin/media/create" method="post" enctype="multipart/form-data">
+                <div class="card-body">
+                    <!-- 커뮤니티 선택 -->
+                    <div class="form-group">
+                        <label for="community-select">커뮤니티 선택 <span class="text-danger">*</span></label>
+                        <select id="community-select" name="artGroupNo" class="form-control select2bs4" required>
+                            <option value="" disabled="disabled" selected="selected" hidden="hidden">커뮤니티 선택</option>
+                            <c:forEach var="artistGroupVO" items="${artistGroupVOList}">
+                                <option value="${artistGroupVO.artGroupNo}">${artistGroupVO.artGroupNm}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    
+                    <!-- 게시글 유형 선택 (일반:N, 멤버쉽:Y, 라이브: L 값으로 저장됨) -->
+                    <div class="form-group">
+                        <label>게시글 유형 <span class="text-danger">*</span></label>
+                        <div class="row pl-2">
+                            <div class="col-sm-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="mediaMebershipYn" id="normalMedia" value="N" checked>
+                                    <label class="form-check-label" for="normalMedia">일반 미디어</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="mediaMebershipYn" id="membershipMedia" value="Y">
+                                    <label class="form-check-label" for="membershipMedia">멤버십 미디어</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="mediaMebershipYn" id="liveMedia" value="L">
+                                    <label class="form-check-label" for="liveMedia">지난 라이브</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 미디어 URL (일반 미디어일 때만 표시) -->
+                    <div class="form-group normal-media-field">
+                        <label for="media-url">미디어 URL <span class="text-danger">*</span></label>
+                        <input type="url" class="form-control" id="media-url" name="mediaVideoUrl" placeholder="YouTube URL을 입력하세요">
+                        <!-- 자바에서 youtube id 추출 -->
+                        <small class="form-text text-muted">예: https://www.youtube.com/watch?v=abcdefghijk</small>
+                    </div>
+                    
+                   <!-- 파일 업로드 부분 수정 -->
+					<!-- 썸네일 이미지 업로드 (멤버십, 지난라이브일 때만 표시) -->
+					<div class="form-group membership-media-field" style="display: none;">
+					    <label for="thumbnail-upload">썸네일 이미지 <span class="text-danger">*</span></label>
+					    <div class="input-group">
+					        <div class="custom-file">
+					            <input type="file" class="custom-file-input" id="thumbnail-upload" name="thumbnailFile" accept="image/*">
+					            <label class="custom-file-label" for="thumbnail-upload">썸네일 이미지 선택</label>
+					        </div>
+					    </div>
+					    <small class="form-text text-muted">권장 크기: 1200 x 300 픽셀, 최대 5MB</small>
+					</div>
+					
+					<!-- 비디오 파일 업로드 (멤버십, 지난라이브일 때만 표시) -->
+					<div class="form-group membership-media-field" style="display: none;">
+					    <label for="video-upload">비디오 파일 <span class="text-danger">*</span></label>
+					    <div class="input-group">
+					        <div class="custom-file">
+					            <input type="file" class="custom-file-input" id="video-upload" name="videoFile" accept="video/*">
+					            <label class="custom-file-label" for="video-upload">비디오 파일 선택</label>
+					        </div>
+					    </div>
+					    <small class="form-text text-muted">지원 형식: MP4, MOV (최대 500MB)</small>
+					</div>
+                    
+                    <!-- 게시글 제목 -->
+                    <div class="form-group">
+                        <label for="post-title">게시글 제목 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="post-title" name="mediaPostTitle" placeholder="게시글 제목을 입력하세요" required>
+                    </div>
+                    
+                    <!-- 게시글 내용 -->
+                    <div class="form-group">
+                        <label for="post-content">게시글 내용 <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="post-content" name="mediaPostCn" required></textarea>
+                    </div>
+                    
+                    <!-- 배너 등록 여부 -->
+                    <div class="form-group">
+                        <label>배너 등록 여부</label>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="banner-switch" name="isbannerYn" value="Y">
+                            <label class="custom-control-label" for="banner-switch">배너로 등록</label>
+                        </div>
+                        <small class="form-text text-muted">배너로 등록 시 커뮤니티 메인 페이지 상단에 표시됩니다.</small>
+                    </div>
+                </div>
+                
+                <!-- 버튼 영역 -->
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">등록하기</button>
+                    <a href="/admin/media" class="btn btn-default float-right">취소</a>
+                </div>
+            </form>
+            <!-- 폼 끝 -->
+        </div>
+    </div>
+    
+    <!-- 관리자 풋터 -->
+    <%@ include file="../adminFooter.jsp"%>
+</div>
+
+<!-- 페이지 자바스크립트 -->
+<script>
+$(function () {
+    // Summernote 에디터 초기화
+    // 안쓸게 될거 같은데 일단 남겨둠
+    $('.summernote').summernote({
+        height: 300,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ]
+    });
+    
+    // 파일 입력 시 파일명 표시
+    bsCustomFileInput.init();
+    
+    // 게시글 유형에 따른 필드 표시/숨김 처리
+    $('input[name="mediaMebershipYn"]').change(function() {
+        if (this.value === 'N') {
+            $('.normal-media-field').show();
+            $('.membership-media-field').hide();
+        } else {
+            $('.normal-media-field').hide();
+            $('.membership-media-field').show();
+        }
+    });
+    
+ // 폼 제출 전 유효성 검사
+    $('#mediaPostForm').submit(function(e) {
+        var mediaType = $('input[name="mediaMebershipYn"]:checked').val();
+        
+        // 일반 미디어인 경우 URL 필수
+        if (mediaType === 'N' && !$('#media-url').val()) {
+            e.preventDefault();
+            alert('미디어 URL을 입력해주세요.');
+            $('#media-url').focus();
+            return false;
+        }
+        
+        // 멤버십 또는 지난 라이브인 경우 썸네일 및 비디오 필수
+        if (mediaType !== 'N') {
+            if (!$('#thumbnail-upload').val()) {
+                e.preventDefault();
+                alert('썸네일 이미지를 업로드 해주세요.');
+                $('#thumbnail-upload').focus(); // 디테일 그만 깎아
+                return false;
+            }
+            
+            if (!$('#video-upload').val()) {
+                e.preventDefault();
+                alert('비디오 파일을 업로드 해주세요.');
+                $('#video-upload').focus();
+                return false;
+            }
+        }
+        
+        return true;
+    });
+});
+</script>
+</body>
+</html>

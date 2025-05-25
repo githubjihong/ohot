@@ -1,0 +1,24 @@
+package com.ohot.home.media.vo;
+
+import java.util.Date;
+
+import com.ohot.vo.ArtistGroupVO;
+
+import lombok.Data;
+
+@Data
+public class MediaPostVO {
+	private String mediaMebershipYn;
+	private String mediaVideoUrl;
+	private int mediaPostNo;
+	private String mediaPostTitle;
+	private String mediaPostCn;
+	private Date mediaRegDt;
+	private String mediaThumUrl;
+	private String mediaDelYn;
+	private String isbannerYn;
+	private int artGroupNo;
+	
+	//중첩 VO
+	private ArtistGroupVO artistGroupVO;
+}

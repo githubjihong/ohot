@@ -1,0 +1,140 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>oHoT EMP</title>
+</head>
+<body class="g-sidenav-show  bg-gray-100">
+
+  
+  <!-- 사이드바 -->
+  <%@ include file="../sidebar.jsp"%>
+  
+  <!-- 컨텐츠 -->
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+      <!-- 헤더 -->
+      <%@ include file="../header.jsp"%>
+        <div class="container-fluid py-2">
+            <h4 class="fw-bold mb-3">문서함</h4>
+
+			  <!-- 탭 메뉴 -->
+			  <ul class="nav nav-tabs mb-3" id="documentTabs" role="tablist">
+			    <li class="nav-item" role="presentation">
+			      <button class="nav-link active" id="draft-tab" data-bs-toggle="tab" data-bs-target="#draft" type="button" role="tab">기안 문서함</button>
+			    </li>
+			    <li class="nav-item" role="presentation">
+			      <button class="nav-link" id="approval-tab" data-bs-toggle="tab" data-bs-target="#approval" type="button" role="tab">결재 문서함</button>
+			    </li>
+			    <li class="nav-item" role="presentation">
+			      <button class="nav-link" id="reference-tab" data-bs-toggle="tab" data-bs-target="#reference" type="button" role="tab">참조 문서함</button>
+			    </li>
+			  </ul>
+			  
+			  
+			  <%-- <!-- 탭 시작 -->
+				<div class="nav nav-tabs">
+					<a class="nav-link ${empty param.memberType ? 'active' : ''}" aria-selected="${empty param.memberType? 'true' : 'false' }" 
+						href="/admin/member/memberList?memberType=">전체</a>
+					<a class="nav-link ${param.memberType eq 'M01' ? 'active' : ''}" aria-selected="${param.memberType eq 'M01' ? 'true' : 'false' }" 
+						href="/admin/member/memberList?memberType=M01">일반 회원</a>
+					<a class="nav-link ${param.memberType eq 'M02' ? 'active' : ''}" aria-selected="${param.memberType eq 'M02' ? 'true' : 'false' }" 
+						href="/admin/member/memberList?memberType=M02">아티스트 회원</a>
+				</div> --%>
+			
+			  <!-- 공통 툴바 -->
+			  <div class="d-flex justify-content-between align-items-center mb-3">
+			    <div class="d-flex gap-2 align-items-center">
+			      <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i> 목록 다운로드</button>
+			      <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-folder"></i> 개인 문서함 분류</button>
+			    </div>
+			    <div class="d-flex align-items-center gap-2">
+			      <select class="form-select form-select-sm" style="width: 120px;">
+			        <option>전자결재</option>
+			      </select>
+			      <input type="text" class="form-control form-control-sm" placeholder="검색" style="width: 200px;">
+			      <button class="btn btn-sm btn-secondary">상세</button>
+			    </div>
+			  </div>
+			
+			  <!-- 탭 내용 -->
+			  <div class="tab-content" id="documentTabsContent">
+			    <!-- 기안 문서함 -->
+			    <div class="tab-pane fade show active" id="draft" role="tabpanel">
+			      <div class="table-responsive bg-white rounded shadow-sm">
+			        <table class="table table-hover align-middle mb-0">
+			          <thead class="table-light text-center">
+			            <tr>
+			              <th><input type="checkbox" /></th>
+			              <th>기안일</th>
+			              <th>결재양식</th>
+			              <th>긴급</th>
+			              <th>제목</th>
+			              <th>첨부</th>
+			              <th>현재 결재자</th>
+			              <th>문서번호</th>
+			              <th>결재상태</th>
+			            </tr>
+			          </thead>
+			          <tbody class="text-center">
+			            <tr>
+			              <td><input type="checkbox" /></td>
+			              <td>2025-04-15</td>
+			              <td>(신규)휴가신청-연차관리연동</td>
+			              <td><span class="text-danger fw-bold">●</span></td>
+			              <td class="text-start">(신규)휴가신청-연차관리연동</td>
+			              <td><i class="bi bi-paperclip"></i></td>
+			              <td>김다우</td>
+			              <td>–</td>
+			              <td><span class="badge bg-success">진행중</span></td>
+			            </tr>
+			            <tr>
+			              <td><input type="checkbox" /></td>
+			              <td>2025-04-11</td>
+			              <td>업무기안</td>
+			              <td></td>
+			              <td class="text-start">결재</td>
+			              <td></td>
+			              <td>김상후</td>
+			              <td>–</td>
+			              <td><span class="badge bg-success">진행중</span></td>
+			            </tr>
+			            <tr>
+			              <td><input type="checkbox" /></td>
+			              <td>2025-04-10</td>
+			              <td>조회신청서</td>
+			              <td></td>
+			              <td class="text-start">개인사유로 인한 조회를 다음과 같이 신청하고자 하니</td>
+			              <td><i class="bi bi-paperclip"></i></td>
+			              <td>–</td>
+			              <td>다우그룹-2025-00006</td>
+			              <td><span class="badge bg-secondary">완료</span></td>
+			            </tr>
+			          </tbody>
+			        </table>
+			      </div>
+			    </div>
+			
+			    <!-- 결재 문서함 -->
+			    <div class="tab-pane fade" id="approval" role="tabpanel">
+			      <div class="text-center py-4 text-muted">결재 문서함 데이터가 없습니다.</div>
+			    </div>
+			
+			    <!-- 참조 문서함 -->
+			    <div class="tab-pane fade" id="reference" role="tabpanel">
+			      <div class="text-center py-4 text-muted">참조 문서함 데이터가 없습니다.</div>
+			    </div>
+			  </div>
+        </div>
+
+
+
+
+
+        <!-- 풋터 -->
+        <%@ include file="../footer.jsp"%>
+    </main>   
+
+</body>
+</html>

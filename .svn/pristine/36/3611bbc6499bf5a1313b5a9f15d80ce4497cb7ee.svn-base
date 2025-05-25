@@ -1,0 +1,139 @@
+/**
+ * 미디어 라이브 관리자 페이지 js
+ * 
+ */
+let dataTable;
+
+$(function () {
+  // DataTable 초기화
+   dataTable = $('#example2').DataTable({
+    "paging": true,
+    "lengthChange": true, // 페이지당 항목 수 선택 옵션
+    "searching": false, // 테이블 내 검색창 옵션
+    "ordering": true,
+    "info": true,
+    "autoWidth": false,
+    "responsive": true,
+  });
+
+  // Select2 초기화
+  $('#community-name, #membership-filter, #banner-filter, #delete-filter').select2({
+    placeholder: "선택",
+    allowClear: true,
+    theme: 'bootstrap4'
+  });
+
+  // 날짜 피커 초기화
+  $('#start-date, #end-date').datetimepicker({
+    format: 'YYYY-MM-DD'
+  });
+
+  $('.card-footer .btn-primary').on('click', function() {
+    searchMediaPosts();
+  });
+
+  // 검색 함수
+  function searchMediaPosts() {
+    // 로딩 표시
+    $('#example2 tbody').html('<tr><td colspan="9" class="text-center"><i class="fas fa-spinner fa-spin"></i> 검색 중...</td></tr>');
+    
+    // 검색 옵션 파라미터 수집
+    const params = {
+      artGroupNm: $('#community-name').val(),
+      startDate: $('#start-date input').val(),
+      endDate: $('#end-date input').val(),
+      mediaMebershipYn: $('#membership-filter').val(),
+      isbannerYn: $('#banner-filter').val(),
+      mediaDelYn: $('#delete-filter').val(),
+      mediaPostTitle: $('#search-title').val()
+    };
+
+    // AJAX 요청
+    $.ajax({
+      url: '/api/media/getSearchList',
+      method: 'GET',
+      data: params,
+      dataType: 'json',
+      success: function(response) {
+        updateMediaPostTable(response);
+      },
+      error: function(xhr, status, error) {
+        console.error('검색 중 오류: ', error);
+        $('#example2 tbody').html('<tr><td colspan="9" class="text-center text-danger">검색 오류</td></tr>');
+      }
+    });
+  }
+
+  // 테이블 업데이트 함수
+  function updateMediaPostTable(data) {
+
+    console.log("테이블 업뎃: ", data);
+    
+    // 기존 DataTable 제거
+
+    if ($.fn.DataTable.isDataTable('#example2')) {
+      $('#example2').DataTable().destroy();
+    }
+    
+    const tableBody = $('#example2 tbody');
+    tableBody.empty();
+    
+    if (data.length === 0) {
+      tableBody.append('<tr><td colspan="9" class="text-center">검색 결과가 없습니다.</td></tr>');
+      
+      // 빈 데이터로 DataTable 다시 초기화
+      $('#example2').DataTable({
+        "paging": true,
+        "lengthChange": true,
+        "searching": false,
+        "ordering": true,
+        "info": true,
+        "autoWidth": false,
+        "responsive": true,
+      });
+      return;
+    }else{
+       // 새로 테이블 그리기
+      $.each(data, function(index, mediaPostVO) {
+        const row = `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${mediaPostVO.mediaPostNo}</td>
+            <td>${mediaPostVO.artistGroupVO ? mediaPostVO.artistGroupVO.artGroupNm : '-'}</td>
+            <td class="dtr-control sorting_1" tabindex="0">${mediaPostVO.mediaPostTitle}</td>
+            <td>${formatDate(mediaPostVO.mediaRegDt)}</td>
+            <td>${mediaPostVO.mediaMebershipYn === 'Y' ? '멤버십' : '일반'}</td>
+            <td>${mediaPostVO.isbannerYn === 'Y' ? '배너' : '일반'}</td>
+            <td>${mediaPostVO.mediaDelYn === 'Y' ? '삭제' : '게시중'}</td>
+            <td class="dtr-control sorting_1" tabindex="0">
+              <a href="/admin/media/detail/${mediaPostVO.mediaPostNo}" class="btn btn-sm btn-info">게시글 바로가기</a>
+            </td>
+          </tr>
+        `;
+        tableBody.append(row);
+      });
+    }
+    
+   
+    
+    // 테이블 다시 초기화
+    dataTable = $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": true,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  }
+  
+  // 날짜 포맷 함수
+  function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.getFullYear() + '-' + 
+           String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+           String(date.getDate()).padStart(2, '0');
+  }
+});

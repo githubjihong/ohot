@@ -1,0 +1,14 @@
+package com.ohot.util;
+
+import java.util.List;
+
+public class Pazing<T> {
+	//페이징 처리
+	   private String pagingArea = "";
+	   
+	   public Pazing(int total, int currentPage, int size, String keyword, List<T> content) {
+		   
+		   
+		   
+	   }
+}

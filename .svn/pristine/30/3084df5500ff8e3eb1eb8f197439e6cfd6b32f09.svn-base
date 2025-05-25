@@ -1,0 +1,54 @@
+package com.ohot.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ohot.mapper.StatsMapper;
+import com.ohot.service.StatsService;
+import com.ohot.vo.StatsVO;
+
+@Service
+public class StatsServiceImpl implements StatsService{
+
+	@Autowired
+	StatsMapper statsMapper;
+
+	@Override
+	public List<StatsVO> statsList(StatsVO statsVO) {
+		return this.statsMapper.statsList(statsVO);
+	}
+
+	@Override
+	public List<StatsVO> listBarAjax(StatsVO statsVO) {
+		return this.statsMapper.listBarAjax(statsVO);
+	}
+
+	@Override
+	public List<StatsVO> listdoughnutAjax(StatsVO statsVO) {
+		return this.statsMapper.listdoughnutAjax(statsVO);
+	}
+
+	@Override
+	public List<StatsVO> SubscriptionTotal(StatsVO statsVO) {
+		return this.statsMapper.SubscriptionTotal(statsVO);
+	}
+
+	@Override
+	public List<StatsVO> SubscriptionTotal2(StatsVO statsVO) {
+		return this.statsMapper.SubscriptionTotal2(statsVO);
+	}
+
+	@Override
+	public List<StatsVO> SubscriptionTotal3(StatsVO statsVO) {
+		return this.statsMapper.SubscriptionTotal3(statsVO);
+	}
+
+	@Override
+	public List<StatsVO> SubscriptionTotal4(StatsVO statsVO) {
+		return ((StatsService) this.statsMapper).SubscriptionTotal4(statsVO);
+	}
+	
+	
+}

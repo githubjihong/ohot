@@ -1,0 +1,155 @@
+/**
+ * 
+ */
+
+ClassicEditor
+   .create(document.querySelector('#editor1'), {
+   	extraPlugins: [MyCustomUploadAdapterPlugin],
+       simpleUpload: {
+           // 이미지 업로드 컨트롤러 주소
+           uploadUrl: '/oho/inquiryPost/upload',
+
+           // 인증 헤더 등 필요한 경우 추가
+           headers: {
+               // 'X-CSRF-TOKEN': 'CSRF-토큰',
+           }
+       }
+   })
+   .then(editor => {
+       window.editor = editor;
+   })
+   .catch(error => {
+       console.error(error);
+   });
+   
+ function MyCustomUploadAdapterPlugin(editor) {
+   editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+     return new MyUploadAdapter(loader);
+   };
+ }
+
+ class MyUploadAdapter {
+   constructor(loader) {
+     this.loader = loader;
+   }
+
+   upload() {
+     return this.loader.file.then(file => new Promise((resolve, reject) => {
+       const data = new FormData();
+       data.append('upload', file);
+
+       fetch('/ckEditor/tempUpload', {
+         method: 'POST',
+         body: data
+       })
+       .then(res => res.json())
+       .then(res => resolve({ default: res.url }))
+       .catch(err => reject(err));
+     }));
+   }
+
+   abort() {
+     // optional
+   }
+ }
+   
+   
+   const submitBtn = document.getElementById("submitBtn");
+   if (submitBtn) {
+       submitBtn.addEventListener("click", () => {
+       	 	let htmlContent = window.editor.getData();
+			let bbsTitle = document.getElementById("bbsTitle").value; 
+            console.log("htmlContent : ", htmlContent);
+	        console.log("bbsTitle : ", bbsTitle);
+			
+			// DOMPurify로 XSS 방어 (HTML 정화)
+	        htmlContent = DOMPurify.sanitize(htmlContent);
+			bbsTitle = DOMPurify.sanitize(bbsTitle);
+			console.log("cleaned htmlContent : ", htmlContent);
+			console.log("cleaned bbsTitle : ", bbsTitle);
+            
+            // HTML을 임시 div에 넣고 textContent만 추출
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = htmlContent;
+            const plainText = tempDiv.textContent || tempDiv.innerText || "";
+            console.log("plainText : ", plainText);
+            
+            // hidden input에 plain text 저장
+            document.getElementById("plainText").value = plainText;
+			
+			if (plainText.trim() === "") {
+	            alert("내용을 입력해주세요.");
+	            // 시각적 피드백도 주고 싶다면 아래 한 줄 추가
+	            document.querySelector('.ck-editor__editable').style.border = '2px solid red';
+	            return; // 제출 막기
+	        } else {
+	            // border 원복 (필요한 경우)
+	            document.querySelector('.ck-editor__editable').style.border = '';
+	        }
+            
+           const writer = document.getElementById("writer").value;
+            if(writer.trim().includes("관리")) {
+            	alert("사용할 수 없는 이름입니다.");
+            }else{
+			 document.getElementById("bbsTitle").value = bbsTitle;
+             const form = document.querySelector("#frmSubmit");
+          	 // required 검사
+             if (form.checkValidity()) {
+                 form.submit(); // 통과하면 제출
+             }else {
+                 form.reportValidity(); // 실패 시 오류 메시지 표시
+             }
+            }
+            
+       });
+   }
+   
+   const saveBtn = document.getElementById("saveBtn");
+   if (saveBtn) {
+       saveBtn.addEventListener("click", () => {
+		let htmlContent = window.editor.getData();
+		let bbsTitle = document.getElementById("bbsTitle").value; 
+        console.log("htmlContent : ", htmlContent);
+		console.log("bbsTitle : ", bbsTitle);
+		
+		// DOMPurify로 XSS 방어 (HTML 정화)
+        htmlContent = DOMPurify.sanitize(htmlContent);
+		bbsTitle = DOMPurify.sanitize(bbsTitle);
+		console.log("cleaned htmlContent : ", htmlContent);
+		console.log("cleaned bbsTitle : ", bbsTitle);
+        
+        // HTML을 임시 div에 넣고 textContent만 추출
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlContent;
+        const plainText = tempDiv.textContent || tempDiv.innerText || "";
+        console.log("plainText : ", plainText);
+        
+        // hidden input에 plain text 저장
+        document.getElementById("plainText").value = plainText;
+		
+		if (plainText.trim() === "") {
+            alert("내용을 입력해주세요.");
+            // 시각적 피드백도 주고 싶다면 아래 한 줄 추가
+            document.querySelector('.ck-editor__editable').style.border = '2px solid red';
+            return; // 제출 막기
+        } else {
+            // border 원복 (필요한 경우)
+            document.querySelector('.ck-editor__editable').style.border = '';
+        }
+        
+		document.getElementById("bbsTitle").value = bbsTitle;
+		const form = document.querySelector("#frmEditSubmit");
+		if (form.checkValidity()) {
+	         form.submit(); // 통과하면 제출
+	     }else {
+	         form.reportValidity(); // 실패 시 오류 메시지 표시
+	     }
+   	})
+}
+   
+   const cancelBtn = document.getElementById("cancelBtn");
+   if(cancelBtn) {
+   	cancelBtn.addEventListener("click", () => {
+   		location.href="/oho/inquiryPost"
+   	})
+   }

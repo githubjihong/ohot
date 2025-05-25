@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohot.mapper.StatsMapper">
+
+	<!-- 
+	ex) 1번 아티스트의 2025년03월 일별통계
+	 -->
+	 <!-- 굿즈매출 리스트-->
+	<select id="statsList" resultType="com.ohot.vo.StatsVO">
+		 SELECT 
+	        TO_CHAR(O.STLM_DT, 'YYYY-MM-DD') AS sale_date,
+	        SUM(O.GRAMT) AS total_sale
+	    FROM 
+	        ORDERS O
+	    WHERE 
+	        O.STLM_YN = 'Y'
+	        AND O.STLM_DT &gt;= TRUNC(SYSDATE, 'MM') 
+	        AND O.STLM_DT &lt; ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+	    GROUP BY 
+	        TO_CHAR(O.STLM_DT, 'YYYY-MM-DD')
+	    ORDER BY 
+	        sale_date ASC
+
+	</select> 
+	<!-- 이번달 신고현황 -->
+	<select id="listBarAjax" resultType="com.ohot.vo.StatsVO">
+		SELECT TO_CHAR(REPORT_REG_DT, 'YYYYMMDD') AS REPORT_REG_DT,
+		       COUNT(*) AS CNT2
+		FROM   REPORT_BOARD_POST
+		WHERE  TO_CHAR(REPORT_REG_DT, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM')
+		GROUP BY TO_CHAR(REPORT_REG_DT, 'YYYYMMDD')
+		ORDER BY REPORT_REG_DT
+	</select>
+	
+	<!-- 이번달 티켓 굿즈 디엠 멤버십 유입수 퍼센트 -->
+	<select id="listdoughnutAjax" resultType="com.ohot.vo.StatsVO">
+		<![CDATA[
+		   WITH T AS(
+		    SELECT '신규 회원,DM 구독 시작,멤버십 시작,커뮤니티 가입' AS LABEL, NVL(COUNT(*), 0) AS TOTAL_CNTS1,0 TOTAL_CNTS2,0 TOTAL_CNTS3,0 TOTAL_CNTS4
+			FROM MEMBER
+			WHERE TO_DATE(JOIN_YMD, 'YYYYMMDD') >= TRUNC(SYSDATE, 'MM')
+			  AND TO_DATE(JOIN_YMD, 'YYYYMMDD') < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			
+			UNION ALL
+			
+			SELECT '신규 회원,DM 구독 시작,멤버십 시작,커뮤니티 가입', 0, NVL(COUNT(*), 0) AS TOTAL_CNTS2,0,0
+			FROM DM_SUB
+			WHERE TO_DATE(DM_STR_YMD, 'YYYYMMDD') >= TRUNC(SYSDATE, 'MM')
+			  AND TO_DATE(DM_STR_YMD, 'YYYYMMDD') < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			
+			UNION ALL
+			
+			SELECT '신규 회원,DM 구독 시작,멤버십 시작,커뮤니티 가입', 0,0, NVL(COUNT(*), 0) AS TOTAL_CNTS3,0
+			FROM MEMBERSHIP
+			WHERE START_YMD >= TRUNC(SYSDATE, 'MM')
+			  AND START_YMD < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			
+			UNION ALL
+			
+			SELECT '신규 회원,DM 구독 시작,멤버십 시작,커뮤니티 가입', 0,0,0,NVL(COUNT(*), 0) AS TOTAL_CNTS4
+			FROM COMMUNITY_PROFILE
+			WHERE TO_DATE(COM_JOIN_YMD, 'YYYYMMDD') >= TRUNC(SYSDATE, 'MM')
+			  AND TO_DATE(COM_JOIN_YMD, 'YYYYMMDD') < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+		)
+		SELECT T.LABEL
+		     , MAX(TOTAL_CNTS1) TOTAL_CNTS1
+		     , MAX(TOTAL_CNTS2) TOTAL_CNTS2
+		     , MAX(TOTAL_CNTS3) TOTAL_CNTS3
+		     , MAX(TOTAL_CNTS4) TOTAL_CNTS4
+		FROM  T
+		GROUP BY T.LABEL
+		]]>
+	  </select>
+	  
+	<select id="memberTotal" resultType="com.ohot.vo.StatsVO">
+		SELECT SUM(CNT) AS TOTAL_CNT2
+		  FROM (
+		      SELECT SUBSTR(JOIN_YMD, 1, 8) AS JOIN_YMD,
+		             COUNT(*) AS CNT
+		      FROM MEMBER
+		      WHERE TO_DATE(JOIN_YMD, 'YYYYMMDD') &gt;= TRUNC(SYSDATE, 'MM')
+		        AND TO_DATE(JOIN_YMD, 'YYYYMMDD') &lt; ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+		      GROUP BY SUBSTR(JOIN_YMD, 1, 8)
+		  )
+	</select>
+	<!--이번달 누적구독수로-->
+	<select id="SubscriptionTotal" resultType="com.ohot.vo.StatsVO">
+		SELECT 
+		    COUNT(*) AS TOTAL_CNT
+		FROM 
+		    DM_SUB O
+		WHERE 
+		    O.DM_STR_YMD &gt;= TRUNC(SYSDATE, 'MM')
+		    AND O.DM_STR_YMD &lt; ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+	</select>
+	
+	<!--이번달 판매매출로-->
+	<select id="FollowersTotal" resultType="com.ohot.vo.StatsVO">
+		SELECT 
+	        SUM(O.GRAMT) AS TOTAL_CNT3
+	    FROM 
+	        ORDERS O
+	    WHERE 
+	        O.STLM_YN = 'Y'
+	        AND O.STLM_DT &gt;= TRUNC(SYSDATE, 'MM') 
+	        AND O.STLM_DT &lt; ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+	</select>
+	
+	<!-- 누적 예매수 -->
+	<select id="goodTotal" resultType="com.ohot.vo.StatsVO">
+		SELECT COUNT(*) AS totalCnt4
+		FROM TK_RSVTN
+		WHERE RSVTN_ENUM = 2
+		  AND RSVTN_DT &gt;= TRUNC(SYSDATE, 'MM')
+  		  AND RSVTN_DT &lt; ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+	</select>
+	
+	<select id="goodcnt" resultType="com.ohot.vo.StatsVO">
+		SELECT 
+		    COUNT(*) AS GOOD_CNT2
+		FROM 
+		    ORDERS O
+		WHERE 
+		    O.STLM_YN = 'Y'
+		    AND O.STLM_DT &gt;= TRUNC(SYSDATE, 'MM') 
+		    AND O.STLM_DT &lt; ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+	</select>
+	
+	<select id="goodNm" resultType="com.ohot.vo.StatsVO">
+		SELECT
+		    G.GDS_NM AS GOOD_NM2
+		FROM
+		    GOODS G
+		WHERE
+		    G.GDS_DEL_YN = 'N'
+		    AND G.REG_DT &gt;= TRUNC(SYSDATE, 'MM')
+		    AND G.REG_DT &lt; ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+		GROUP BY
+		    G.GDS_NM
+		ORDER BY
+		    SUM(G.QTY) DESC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<!-- 
+	// 전체 글 수(검색 포함)
+	public int getTotal(Map<String, Object> map);
+	 -->
+	 <select id="pazing" parameterType="hashMap" resultType="int">
+	 	SELECT COUNT(*)
+		  FROM MEMBER
+		WHERE  1 = 1
+		<if test="keyword!=null and keyword!=''">
+			AND    MEM_LAST_NAME LIKE '%' || #{keyword} || '%'
+		</if>
+	 </select>
+	 
+	<!-- 회원가입 구독 통계 -->	 
+	 <select id="listMemberAjax" resultType="com.ohot.vo.StatsVO">
+		SELECT SUBSTR(JOIN_YMD, 1, 8) JOIN_YMD
+		     , COUNT(*) MEMBER_CNT
+		FROM   MEMBER 
+		WHERE    SUBSTR(JOIN_YMD,1,6) = #{joinYmd}
+		GROUP BY SUBSTR(JOIN_YMD,1,8)
+		ORDER BY 1
+	</select>
+	<!-- 커뮤니티 구독 통계 -->
+	<select id="communityMember" resultType="com.ohot.vo.StatsVO">
+		  SELECT SUBSTR(COM_JOIN_YMD, 1, 6) COM_JOIN_YMD
+		     , COUNT(*) COMPROFILECNT
+		FROM   COMMUNITY_PROFILE 
+		WHERE    SUBSTR(COM_JOIN_YMD,1,6) = '202503'
+		GROUP BY SUBSTR(COM_JOIN_YMD,1,6)
+		ORDER BY 1
+        
+	</select>
+	
+	<!-- 아이돌 인기top6사진 업로드 -->
+	<select id="editPost" resultType="com.ohot.vo.StatsVO">
+        SELECT 
+		    ART.ARTIST_NAME,
+		    F.FILE_ORIGINAL_NAME,
+		    F.FILE_SAVE_NAME,
+		    F.FILE_SAVE_LOCATE,
+		    F.FILE_EXT
+		FROM (
+		    SELECT 
+		        A.ART_ACT_NM AS ARTIST_NAME,
+		        A.FILE_GROUP_NO,
+		        COUNT(D.DM_SUB_NO) AS SUB_COUNT
+		    FROM 
+		        ARTIST A
+		    JOIN 
+		        DM_SUB D ON A.ART_NO = D.ART_NO
+		    WHERE 
+		        A.ART_DEL_YN = 'N'
+		    GROUP BY 
+		        A.ART_ACT_NM, A.FILE_GROUP_NO
+		    ORDER BY 
+		        SUB_COUNT DESC
+		    FETCH FIRST 5 ROWS ONLY
+		) ART
+		LEFT JOIN (
+            SELECT ROW_NUMBER() OVER(PARTITION BY FILE_GROUP_NO ORDER BY FILE_GROUP_NO ASC) RNUM
+                , FILE_SN, FILE_GROUP_NO, FILE_ORIGINAL_NAME, FILE_SAVE_NAME, FILE_SAVE_LOCATE, FILE_SIZE, FILE_EXT, FILE_MIME, FILE_FANCYSIZE, FILE_SAVE_DATE, FILE_DOWNCOUNT
+            FROM FILE_DETAIL
+		) F ON ART.FILE_GROUP_NO = F.FILE_GROUP_NO AND RNUM = 1
+    </select>
+    <!-- 이번달 예매통계 -->
+    <select id="listdoughnutAjax2" resultType="com.ohot.vo.StatsVO">
+		SELECT 
+		    (SELECT COUNT(*) 
+		     FROM TK_RSVTN
+		     WHERE RSVTN_ENUM = 2
+		       AND RSVTN_DT &gt; TRUNC(SYSDATE, 'MM')
+		       AND RSVTN_DT &lt; ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)) AS totalCnt5,
+		     
+		    (SELECT COUNT(*) 
+		     FROM TK_RSVTN
+		     WHERE RSVTN_ENUM != 2
+		       AND RSVTN_DT &gt; TRUNC(SYSDATE, 'MM')
+		       AND RSVTN_DT &lt; ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)) AS availableSeats
+		FROM dual
+	</select>
+	<!-- 굿즈통계상세 -->
+		<select id="goodsStatistics" parameterType="hashMap" resultType="com.ohot.vo.StatsVO">
+		    WITH U AS (
+		        SELECT
+		            ROW_NUMBER() OVER (ORDER BY A.gds_no DESC) AS rnum,
+		            A.gds_no,
+		            A.gds_type,
+		            A.gds_nm,
+		            A.unit_price,
+		            NVL(order_stats.purchase_count, 0) AS productPurchases,
+		            A.reg_dt,
+		            A.art_group_no,
+		            B.art_group_nm,
+		            group_stats.product_count AS goodsNum,
+		            CASE
+		                WHEN group_stats.total_group_orders IS NULL OR group_stats.total_group_orders = 0 THEN 0
+		                ELSE ROUND(NVL(order_stats.purchase_count, 0) / group_stats.total_group_orders, 2)
+		            END AS competition
+		        FROM
+		            goods A
+		            LEFT JOIN artist_group B ON A.art_group_no = B.art_group_no
+		            LEFT JOIN (
+		                SELECT
+		                    gds_no,
+		                    COUNT(*) AS purchase_count
+		                FROM
+		                    orders_details
+		                GROUP BY
+		                    gds_no
+		            ) order_stats ON A.gds_no = order_stats.gds_no
+		            LEFT JOIN (
+		                SELECT
+		                    A.art_group_no,
+		                    COUNT(*) AS product_count,
+		                    SUM(NVL(order_stats2.purchase_count, 0)) AS total_group_orders
+		                FROM
+		                    goods A
+		                    LEFT JOIN (
+		                        SELECT
+		                            gds_no,
+		                            COUNT(*) AS purchase_count
+		                        FROM
+		                            orders_details
+		                        GROUP BY
+		                            gds_no
+		                    ) order_stats2 ON A.gds_no = order_stats2.gds_no
+		                GROUP BY
+		                    A.art_group_no
+		            ) group_stats ON A.art_group_no = group_stats.art_group_no
+		        WHERE 1 = 1
+		        <include refid="where" />
+		    )
+		    SELECT *
+		    FROM U
+		    WHERE rnum BETWEEN (#{currentPage} * 10) - (10 - 1)
+		                  AND (#{currentPage} * 10)
+		</select>
+     
+   	   <select id="getTotal" parameterType="hashMap" resultType="int">
+		    SELECT COUNT(*)
+		    FROM   goods A , orders_details B, artist_group C
+		    WHERE  1 = 1
+		    <include refid="where"></include>
+		</select>
+	   
+	   <sql id="where">
+		    <if test="keyword!=null and keyword!=''">
+		        AND    (GDS_NM LIKE '%' || #{keyword} || '%'
+		            OR  UNIT_PRICE     LIKE '%' || #{keyword} || '%')
+		    </if>
+		</sql>
+		
+		 <select id="topList" resultType="com.ohot.vo.StatsVO">
+		 	WITH ranked_goods AS (
+			    SELECT
+			        ROW_NUMBER() OVER (ORDER BY NVL(C.purchase_count, 0) DESC) AS rnum,
+			        A.gds_nm,
+			        B.art_group_nm
+			    FROM
+			        goods A
+			        JOIN artist_group B ON A.art_group_no = B.art_group_no
+			        LEFT JOIN (
+			            SELECT
+			                gds_no,
+			                COUNT(*) AS purchase_count
+			            FROM
+			                orders_details
+			            GROUP BY
+			                gds_no
+			        ) C ON A.gds_no = C.gds_no
+			)
+			SELECT *
+			FROM ranked_goods
+			WHERE rnum >= 1
+			ORDER BY rnum
+			FETCH FIRST 10 ROWS ONLY
+		 </select>
+		 
+	<select id="GoodsStatisticsAjax" resultType="com.ohot.vo.StatsVO">
+			SELECT TO_CHAR(REG_DT, 'YYYYMMDD') AS REG_DT,
+			       COUNT(*) AS CNT9
+			FROM   GOODS
+			WHERE  TO_CHAR(REG_DT, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM')
+			GROUP BY TO_CHAR(REG_DT, 'YYYYMMDD')
+			ORDER BY REG_DT
+	    
+	</select>
+</mapper>

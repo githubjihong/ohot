@@ -1,0 +1,20 @@
+package com.ohot.shop.service;
+
+import java.util.List;
+
+import com.ohot.home.community.vo.CommunityProfileVO;
+import com.ohot.shop.vo.GoodsVO;
+import com.ohot.vo.ArtistGroupVO;
+import com.ohot.vo.UsersVO;
+
+public interface ShopService {
+
+	public List<CommunityProfileVO> communityProfileList(UsersVO usersVO);
+
+	public List<ArtistGroupVO> artstGroupList(UsersVO usersVO);
+
+	public int goodsShopInsert(GoodsVO goodsVO);
+
+	public GoodsVO goodsDetail(GoodsVO goodsVO);
+	
+}

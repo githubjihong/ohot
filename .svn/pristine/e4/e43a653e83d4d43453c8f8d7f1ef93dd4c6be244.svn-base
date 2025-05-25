@@ -1,0 +1,193 @@
+/**
+ * 미디어 라이브 관리자 페이지 js
+ * 
+ */
+let dataTable;
+
+$(function () {
+	   
+  // DataTable 초기화
+   dataTable = $('#example2').DataTable({
+    "paging": false,
+    "lengthChange": true, // 페이지당 항목 수 선택 옵션
+    "searching": false, // 테이블 내 검색창 옵션
+    "ordering": true,
+    "info": true,
+    "autoWidth": false,
+    "responsive": true,
+	"language": {
+	  "paginate": {
+	    "previous": "이전",
+	    "next": "다음"
+	  }
+	},
+	"buttons": [
+	    {
+	      extend: 'collection',
+	      text: '<i class="fas fa-plus"></i> 게시글 등록',
+	      className: 'btn btn-primary mr-4 mb-2',
+	      action: function(e, dt, node, config) {
+	        window.location.href = '/admin/media/register';
+	      }
+	    }
+	  ],
+	 "dom": '<"row"<"col-sm-6"l><"col-sm-6 text-right"B>>rt<"row"<"col-sm-5"i><"col-sm-7"p>>',
+  });
+
+  // Select2 초기화
+  $('#artGroupNm, #artGroupDebutYmd, #artGroupRegYmd, #delete-filter').select2({
+    placeholder: "선택",
+    allowClear: true,
+    theme: 'bootstrap4'
+  });
+
+  // 날짜 피커 초기화
+  $('#start-date, #end-date').datetimepicker({
+    format: 'YYYY-MM-DD'
+  });
+
+  $('.card-footer .btn-primary').on('click', function() {
+    searchArtistGroupPosts();
+  });
+  
+  /*// 페이징 텍스트 한국어로 변경
+  $('.dataTables_paginate .previous').html('이전');
+  $('.dataTables_paginate .next').html('다음');
+  
+  $('#example2').on('draw.dt', function() {
+      $('.dataTables_paginate .previous').html('이전');
+      $('.dataTables_paginate .next').html('다음');
+    });*/
+
+  // 검색 함수
+  function searchArtistGroupPosts() {
+    // 로딩 표시
+    $('#example2 tbody').html('<tr><td colspan="9" class="text-center"><i class="fas fa-spinner fa-spin"></i> 검색 중...</td></tr>');
+    
+    // 검색 옵션 파라미터 수집
+    const params = {
+      artGroupNm: $('#artGroupNm').val(),
+      startDate: $('#start-date input').val(),
+      endDate: $('#end-date input').val(),
+      artGroupDebutYmd: $('#artGroupDebutYmd input').val(),
+      artGroupRegYmd: $('#artGroupRegYmd input').val(),
+      artGroupDelYn: $('#artGroupDelYn').val()
+	  
+    };
+
+    // AJAX 요청
+    $.ajax({
+      url: '/admin/artistGroup/artistGroupList',
+      method: 'GET',
+      data: params,
+      dataType: 'json',
+      success: function(response) {
+        updateArtistGroupPostTable(response);
+      },
+      error: function(xhr, status, error) {
+        console.error('검색 중 오류: ', error);
+        $('#example2 tbody').html('<tr><td colspan="9" class="text-center text-danger">검색 오류</td></tr>');
+      }
+    });
+  }
+
+  // 테이블 업데이트 함수
+  function updateArtistGroupPostTable(data) {
+
+    console.log("테이블 업뎃: ", data);
+    
+    // 기존 DataTable 제거
+
+    if ($.fn.DataTable.isDataTable('#example2')) {
+      $('#example2').DataTable().destroy();
+    }
+    
+    const tableBody = $('#example2 tbody');
+    tableBody.empty();
+    
+    if (data.length === 0) {
+      tableBody.append('<tr><td colspan="9" class="text-center">검색 결과가 없습니다.</td></tr>');
+      
+      // 빈 데이터로 DataTable 다시 초기화
+      $('#example2').DataTable({
+        "paging": true,
+        "lengthChange": true,
+        "searching": false,
+        "ordering": true,
+        "info": true,
+        "autoWidth": false,
+        "responsive": true,
+		"language" : {
+			"paginate": {
+				"previous" : "이전",
+				"next" : "다음"
+			}
+		},
+      });
+      return;
+    }else{
+       // 새로 테이블 그리기
+      $.each(data, function(index, mediaPostVO) {
+        const row = `
+			<tr class="odd">
+				<td>${artistGroupVO.rnum}</td>
+				<td>${artistGroupVO.artGroupNm}</td>
+				<td>${artistGroupVO.artGroupDebutYmd}</td>
+				<td>${artistGroupVO.artGroupRegYmd}</td>
+				<%-- <td><fmt:formatDate value="${artistGroupVO.mediaRegDt}" pattern="yyyy-MM-dd"/></td> --%>
+				<!-- Y, N 어떻게 노출할지 -->
+				<td>${artistGroupVO.artGroupDelYn == 'Y' ? '중단' : '활성화'}</td>
+				<td><a
+					href="/admin/artistGroup/artistGroupEdit?artGroupNo=${artistGroupVO.artGroupNo}"
+					class="btn btn-secondary">수정</a></td>
+				<td>
+					<button type="button" class="btn btn-danger"
+						data-toggle="modal" id="deleteMember"
+						onclick="deleteMember(${artistGroupVO.artGroupNo})">삭제</button>
+				</td>
+			</tr>
+        `;
+        tableBody.append(row);
+      });
+    }
+    
+   
+    
+    // 테이블 다시 초기화
+    dataTable = $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": true,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+	  "language" : {
+	  			"paginate": {
+	  				"previous" : "이전",
+	  				"next" : "다음"
+	  			}
+	  		},
+      "buttons": [
+		    {
+		      extend: 'collection',
+		      text: '<i class="fas fa-plus"></i> 게시글 등록',
+		      className: 'btn btn-primary mr-4 mb-2',
+		      action: function(e, dt, node, config) {
+		        window.location.href = '/admin/media/create';
+		      }
+		    }
+		  ],
+		  "dom": '<"row"<"col-sm-6"l><"col-sm-6 text-right"B>>rt<"row"<"col-sm-5"i><"col-sm-7"p>>',
+    });
+  }
+  
+  // 날짜 포맷 함수
+  function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.getFullYear() + '-' + 
+           String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+           String(date.getDate()).padStart(2, '0');
+  }
+});

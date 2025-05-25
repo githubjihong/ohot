@@ -1,0 +1,16 @@
+package com.ohot.home.dm.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.ohot.vo.ArtistGroupVO;
+
+@Mapper
+public interface DmMapper {
+
+	public List<ArtistGroupVO> artGroupList(int memNo);
+
+	public List<ArtistGroupVO> myArtistList(int memNo);
+
+}

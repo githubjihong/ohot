@@ -1,0 +1,20 @@
+package com.ohot.admin.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ohot.admin.mapper.AdminCommunityMapper;
+import com.ohot.admin.service.AdminCommunityService;
+
+@Service
+public class AdminCommunityServiceImpl implements AdminCommunityService {
+	
+	@Autowired
+	AdminCommunityMapper adminCommunityMapper;
+
+	@Override
+	public int getTotalPost() {
+		// TODO Auto-generated method stub
+		return this.adminCommunityMapper.getTotalPost();
+	}
+}

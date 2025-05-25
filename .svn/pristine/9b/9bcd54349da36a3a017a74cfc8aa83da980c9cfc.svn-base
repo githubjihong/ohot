@@ -1,0 +1,13 @@
+package com.ohot.home.dm.service;
+
+import java.util.List;
+
+import com.ohot.vo.ArtistGroupVO;
+
+public interface DmService {
+
+	public List<ArtistGroupVO> artGroupList(int memNo);
+
+	public List<ArtistGroupVO> myArtistList(int memNo);
+
+}

@@ -1,0 +1,160 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>마이페이지 - oHoT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f7f9fc;
+      font-family: 'Pretendard', sans-serif;
+    }
+    .card-box {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .category-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 10px;
+    }
+    .rounded-toggle {
+      border-radius: 20px;
+      padding: 4px 12px;
+    }
+    
+    .memberInfo {
+    	border:none;
+    	background-color: #fff;
+    	width:200px;
+    }
+   	.changeBtn {
+	    border: 2px solid #e1e1e1;
+	    border-radius: 12px;
+ 	    background-color: #fff;
+	    font-weight: 600;
+	    padding: 6px 12px;
+	    cursor: pointer;
+	    color: #F86D72;
+	}
+  </style>
+</head>
+<body>
+
+<%@ include file="/WEB-INF/views/header.jsp" %>
+
+  
+ <sec:authorize access="isAuthenticated()">
+      <sec:authentication property="principal.usersVO" var="userVO"/>
+</sec:authorize>
+<c:set var="memberVO" value="${userVO.memberVO}" />
+${userVO}
+
+<div class="container py-5">
+  <div class="mb-4 text-white p-4" style="background-color: #333; border-radius: 12px;">
+    <h4 class="text-white">${memberVO.memNicknm}</h4>
+    <p class="mb-1">${memberVO.memEmail}</p>
+    <a href="#" class="text-white text-decoration-underline">로그아웃</a>
+  </div>
+  <!-- 상단 카드 -->
+  <div class="row mb-3">
+    <div class="col-2 md-2">
+      <button class="card-box d-flex justify-content-between align-items-center col-12">
+        <span><strong><spring:message code="mypage.my.profile"/></strong></span>
+      </button>
+      <button class="card-box d-flex justify-content-between align-items-center col-12">
+        <span><strong><spring:message code="mypage.my.inquiries"/></strong></span>
+      </button>
+      <button class="card-box d-flex justify-content-between align-items-center col-12">
+        <span><strong><spring:message code="mypage.notices" /></strong></span>
+      </button>
+    </div>
+
+    <!-- 콘텐츠 카테고리 -->
+    <div class="col-md-10">
+      <div class="card-box">
+        <div class="d-flex flex-column">
+        	<h2><spring:message code="mypage.my.profile"/></h2>
+        	<br>
+        	<h5><spring:message code="mypage.my.profile"/></h5>
+        	<div class="row">
+        	<input class="memberInfo col-11" value="${memberVO.memEmail}" disabled>
+        	</div>
+        	<h5><spring:message code="signup.nicknm"/></h5>
+        	<div class="row">
+	        	<input class="memberInfo col-11" value="${memberVO.memNicknm}" disabled />
+	       		<button class="changeBtn col-1" onClick="editNicknm()">
+	       			<spring:message code="mypage.edit.btn" />
+	       		</button>
+        	</div>
+        	
+        	<h5><spring:message code="mypage.name"/></h5>
+        	<div class="row">
+	        	<input class="memberInfo col-11" value="${memberVO.memLastName} ${memberVO.memFirstName }" disabled />
+	        	<button class="changeBtn col-1" onClick="editName()">
+	        		<spring:message code="mypage.edit.btn" />
+	        	</button>
+        	</div>
+        	<h5><spring:message code="password"/></h5>
+        	<div class="row">
+        		<input class="memberInfo col-11" value="●●●●●●●●●" disabled />
+        		<button class="changeBtn col-1" onClick="editPswd()">
+        			<spring:message code="mypage.edit.btn" />
+        		</button>
+        	</div>
+        	<h5><spring:message code="signup.telno"/></h5>
+        	<div class="row">
+	        	<input class="memberInfo col-11" value="${memberVO.memTelno}" disabled />
+	        	<button class="changeBtn col-1" onClick="editTelno()">
+	        		<spring:message code="mypage.edit.btn" />
+	        	</button>
+        	</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+	function editNicknm() {
+		const editNickModal = document.getElementById("editNickModal");
+		editNickModal.style.display = "flex";  // 모달을 보이도록 설정
+	}
+	
+	function editName() {
+		const editNameModal = document.getElementById("editNameModal");
+		editNameModal.style.display = "flex";  // 모달을 보이도록 설정
+	}
+	
+	function editPswd() {
+		const editPswdModal = document.getElementById("editPswdModal");
+		editPswdModal.style.display = "flex";  // 모달을 보이도록 설정
+	}
+	
+	function editTelno() {
+		const editTelnoModal = document.getElementById("editTelnoModal");
+		editTelnoModal.style.display = "flex";  // 모달을 보이도록 설정
+	}
+	
+</script>
+
+<!-- 모달 -->
+<jsp:include page="/WEB-INF/views/mypage/editNickModal.jsp" />
+<jsp:include page="/WEB-INF/views/mypage/editNameModal.jsp" />
+<%-- <jsp:include page="/WEB-INF/views/mypage/editTelNoModal.jsp" /> --%>
+<jsp:include page="/WEB-INF/views/mypage/editPswdModal.jsp" />
+    
+<%@ include file="/WEB-INF/views/footer.jsp" %>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

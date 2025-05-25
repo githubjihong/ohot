@@ -1,0 +1,54 @@
+package com.ohot.home.groupProfile;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.ohot.vo.ArtistGroupVO;
+import com.ohot.vo.CustomUser;
+import com.ohot.vo.UsersVO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/oho")
+@Controller
+public class GroupProfileController {
+	
+	@GetMapping("/groupProfile")
+	public String groupProfile(ArtistGroupVO artistGroupVO
+								, @AuthenticationPrincipal CustomUser customUser
+								, Model model
+			) {
+		log.info("groupProfile -> artistGroupVO : " + artistGroupVO);
+		
+		Map<String, Object> map = new HashMap<>();
+		
+		// 비회원이 그룹프로필을 눌렀을 경우
+		if(customUser == null) ;
+		
+		// 회원이 그룹프로필을 눌렀을 경우
+		else {
+			UsersVO usersVO =  customUser.getUsersVO();
+			log.info("usersVO : " + usersVO);
+			
+			int userNo = (int) usersVO.getUserNo();
+			map.put("memNo", userNo);
+			
+		}
+		
+		int artGroupNo = artistGroupVO.getArtGroupNo();
+		log.info("groupProfile -> artGroupNo : " + artGroupNo);
+		map.put("artGroupNo", artGroupNo);
+		
+		model.addAttribute("map", map);
+		
+		return "community/groupProfile";
+	}
+	
+}

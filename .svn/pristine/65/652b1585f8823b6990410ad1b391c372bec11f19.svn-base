@@ -1,0 +1,398 @@
+package com.ohot.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ohot.mapper.UsersMapper;
+import com.ohot.service.MemberService;
+import com.ohot.shop.vo.GoodsVO;
+import com.ohot.util.BoardPage;
+import com.ohot.vo.ArtistGroupVO;
+import com.ohot.vo.CustomUser;
+import com.ohot.vo.MemberVO;
+import com.ohot.vo.UsersVO;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+public class HomeController {
+	
+	@Autowired
+	UsersMapper usersMapper;
+	
+	@Autowired
+	MemberService memberService;
+	
+	 @Autowired
+    private JavaMailSender mailSender;
+	
+	// 홈페이지
+	@GetMapping("/oho")
+	public String homePage(Model model
+							, @AuthenticationPrincipal CustomUser customUser
+			) {
+		log.info("홈페이지 포워딩");
+		
+		Map<String, Object> dmMap = new HashMap<>();
+		Map<String, Object> goodsMap = new HashMap<>();
+		Map<String, Object> unMemMap = new HashMap<>();
+		Map<String, Object> joinMap = new HashMap<>();
+		Map<String, Object> unjoinMap = new HashMap<>();
+		
+		dmMap.put("join", null);
+		dmMap.put("orderby", "random");
+		dmMap.put("goodsInfo", false);
+		dmMap.put("start", 1);
+		dmMap.put("end", 10);
+		
+		List<ArtistGroupVO> dmList = this.memberService.getDmList(dmMap); // 디엠리스트
+		log.info("디엠 리스트 : " + dmList);
+		
+		if(customUser == null) { // 비회원이 홈페이지에 접속했을 경우
+			unMemMap.put("join", "no");
+			unMemMap.put("memNo", null);
+			unMemMap.put("start", 1);
+			unMemMap.put("end", 5);
+			
+			// 새로운 아티스트를 만나보세요!
+			List<ArtistGroupVO> newArtistGroupList = this.memberService.getNewArtistGroupList(unMemMap);
+			int total = newArtistGroupList.get(0).getTotalCnt();
+			BoardPage<ArtistGroupVO> boardPage = new BoardPage<>(total, 1, 15, null, newArtistGroupList, null);
+			
+			log.info("보드페이지!!! : "+ boardPage);
+			log.info("비회원의 전체 리스트 : " + newArtistGroupList);
+			
+			model.addAttribute("boardPage", boardPage);
+			model.addAttribute("newArtistGroupList", newArtistGroupList);
+		}
+		else { // 회원이 홈페이지에 접속했을 경우
+			UsersVO usersVO =  customUser.getUsersVO();
+			log.info("usersVO : " + usersVO);
+			int memNo = (int) usersVO.getUserNo();
+			
+			// 가입한 그룹 리스트
+			joinMap.put("join", "yes");
+			joinMap.put("memNo", memNo);
+			joinMap.put("start", 1);
+			joinMap.put("end", 10);
+			List<ArtistGroupVO> joinArtistGroupList = this.memberService.getJoinArtistGroupList(joinMap);
+			log.info("회원이 가입한 그룹의 리스트 : " + joinArtistGroupList);
+			
+			// 가입하지 않은 그룹 리스트
+			unjoinMap.put("join", "no");
+			unjoinMap.put("memNo", memNo);
+			unjoinMap.put("start", 1);
+			unjoinMap.put("end", 10);
+			List<ArtistGroupVO> newArtistGroupList = this.memberService.getNewArtistGroupList(unjoinMap);
+			log.info("회원이 가입하지 않은 그룹의 리스트 : " + newArtistGroupList);
+			
+			// 가입한 그룹의 굿즈 정보 리스트
+			goodsMap.put("memNo", memNo);
+			goodsMap.put("artGroupNo", 0);
+			goodsMap.put("start", 1);
+			goodsMap.put("end", 15);
+			
+			List<ArtistGroupVO> artWithGoodsList = this.memberService.getArtWithGoods(memNo);
+			List<GoodsVO> goodsVOList = this.memberService.getGoodsVOList(goodsMap);
+			
+			log.info("가입한 그룹 중 굿즈가 있는 그룹 리스트 :" + artWithGoodsList);
+			log.info("굿즈 정보 리스트 :" + goodsVOList);
+			
+			model.addAttribute("joinArtistGroupList", joinArtistGroupList);
+			model.addAttribute("newArtistGroupList", newArtistGroupList);
+			model.addAttribute("artWithGoodsList", artWithGoodsList);
+			model.addAttribute("goodsVOList", goodsVOList);
+		}
+		
+		model.addAttribute("dmList", dmList);
+		
+		return "home";
+	}
+	
+	// 굿즈샵 리스트 비동기
+	@ResponseBody
+	@PostMapping("/oho/getGoodsList")
+	public List<GoodsVO> getGoodsList(@RequestBody Map<String, Object> data
+										, Model model
+			) {
+		log.info("getGoodsList -> data : " + data);
+		
+		Map<String, Object> map = new HashMap<>();
+		int memNo = Integer.parseInt(data.get("memNo").toString());
+		log.info("memNo : " + memNo);
+
+		map.put("memNo", memNo);
+		
+		if(data.get("artGroupNo") != null) {
+			int artGroupNo = Integer.parseInt(data.get("artGroupNo").toString());
+			log.info("artGroupNo : " + artGroupNo);
+			
+			if("0".equals(data.get("artGroupNo").toString())) { // artGroupNo=0 ===> 전체 리스트 출력
+				// 전체 리스트 출력이어서 범위 지정
+				map.put("start", 1);
+				map.put("end", 15);
+				map.put("artGroupNo", artGroupNo);
+			}else {
+				map.put("artGroupNo", artGroupNo);
+			}
+		}
+		
+		List<GoodsVO> goodsList = this.memberService.getGoodsVOList(map);
+		log.info("getGoodsList -> goodsList :" + goodsList);
+		
+		return goodsList;
+	}
+	
+	// DM List 리렌더링
+	@ResponseBody
+	@GetMapping("/oho/getDMList")
+	public List<ArtistGroupVO> getDMList(Model model) {
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("join", null);
+		map.put("orderby", "random");
+		
+		List<ArtistGroupVO> dmList = this.memberService.getDmList(map);
+		
+		return dmList;
+	}
+	
+	@ResponseBody
+	@GetMapping("/oho/searchArtGroupList")
+	public List<ArtistGroupVO> searchArtGroupList(@RequestParam String keyword) {
+		
+		log.info("검색 키워드 확인 : " + keyword);
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("keyword", keyword.trim());
+		map.put("join", null);
+		
+		List<ArtistGroupVO> searchArtGroupList = this.memberService.getDmList(map);
+		log.info("검색된 그룹 리스트", searchArtGroupList);
+		
+		return searchArtGroupList;
+	}
+	
+	// 홈페이지, 굿즈샵 로그인
+	@GetMapping("/login")
+	public String loginPage(@RequestParam(required = false) String redirectURL
+							, @AuthenticationPrincipal CustomUser customUser
+			) {
+		log.info("로그인 페이지 포워딩");
+		log.info("loginPage -> redirectURL : "+redirectURL);
+		
+		// 이미 로그인한 사용자면 홈으로 리디렉트
+		log.info("loginPage -> customUser : " + customUser);
+		if (customUser != null) {
+	        return "redirect:/oho";
+		}
+		
+		return "login";
+	}
+	
+	// 홈페이지, 굿즈샵 로그아웃
+	@PostMapping("/logout")
+	public void logout(HttpServletRequest request, HttpServletResponse response) {
+		new SecurityContextLogoutHandler().logout(request, response, 
+				SecurityContextHolder.getContext().getAuthentication()
+				);
+	}
+	
+	// 회원가입
+	@PostMapping("/signup")
+	public String signup(@RequestParam String newEmail
+						, @RequestParam String newPassword
+						, Model model
+			) {
+		log.info("newEmail : "+ newEmail);
+		log.info("newPassword : "+ newPassword);
+		
+	    model.addAttribute("memEmail", newEmail);
+	    model.addAttribute("memPswd", newPassword);
+	    model.addAttribute("snsMemYn", "N");
+		
+		return "signup";
+	}
+	
+	// 카카오 회원가입일 경우
+	@GetMapping("/signup")
+	public String signup(Model model
+						, HttpSession session
+			) {
+		String email = (String) session.getAttribute("KAKAO_EMAIL");
+		 log.info("가입 요청 카카오 이메일 : " + email);
+
+		 model.addAttribute("snsMemYn", "Y");
+		 model.addAttribute("memEmail", email);
+		 model.addAttribute("memPswd", "kakao");
+
+	    return "signup"; // → signup.jsp 렌더링
+	}
+	
+	// 회원가입 진행
+	@PostMapping("/signupAccess")
+	public String signupAccess(MemberVO memberVO,
+								HttpServletRequest request
+			) {
+		log.info("signupAccess -> memberVO : "+ memberVO);
+		
+		if(memberVO != null) {
+			int result = this.memberService.signUp(memberVO);
+			
+			// 가입 실패
+			if(result==0) {
+				return "redirect:" + request.getRequestURI()+ "?error=true";
+			}
+			// 가입 성공
+			else {
+				log.info("여기 오나????");
+				HttpSession session = request.getSession(false); // false -> 새 세션을 만들지 않고 이미 있는 세션만 가져 옴
+		        if (session != null) session.invalidate();
+		        
+	            return "redirect:/login?signup=true";
+			}
+		} else {
+			return"redirect:" + request.getRequestURI()+ "?error=true";
+		}
+		
+	}
+	
+	// 이메일 체크 비동기
+	@ResponseBody
+	@PostMapping("/emailCheck")
+	public String emailCheck(@RequestBody Map<String, Object> map) {
+		log.info("map : " + map);
+		String email = (String) map.get("email");
+		log.info("email : " + email);
+		
+		String result;
+		
+		UsersVO usersVO = this.usersMapper.findByEmail(email);
+		log.info("usersVO : " + usersVO);
+		if(usersVO == null) {
+			result = "success";
+		}else result = "fail";
+		
+		return result;
+	}
+	
+	// 인증코드 발송
+	@ResponseBody
+	@PostMapping("/sendCode")
+	public ResponseEntity<?> sendCode(@RequestBody Map<String, Object> map, HttpSession session) {
+		log.info("map : "+ map);
+		String email = (String) map.get("email");
+		String code = createCode();
+		
+		// 인증 정보 객체 생성
+		Map<String, Object> authInfo = new HashMap<>();
+		authInfo.put("code", code);
+		authInfo.put("time", System.currentTimeMillis());
+		
+		// 세션에 저장
+		session.setAttribute("auth_" + email, authInfo);
+		
+		sendEmail(email, code);
+		
+		return ResponseEntity.ok().build();
+	}
+	
+	// 인증번호 일치 여부 확인
+	@ResponseBody
+	@PostMapping("/verifyCode")
+	public ResponseEntity<?> verifyCode(@RequestBody Map<String, Object> map, HttpSession session) {
+		log.info("verifyCode -> map : " + map);
+		String email = (String)map.get("email");
+		String inputCode = (String)map.get("code");
+		
+		
+		@SuppressWarnings("unchecked")
+		Map<String, Object> authInfo = (Map<String, Object>) session.getAttribute("auth_"+email);
+		
+		// 해당 이메일에 대한 인증정보 객체가 없을 경우
+		if(authInfo == null) return ResponseEntity.ok("fail");
+		
+		String correctCode = (String)authInfo.get("code");
+		long sentTime = (long)authInfo.get("time");
+		long now = System.currentTimeMillis();
+		
+		// 유효시간 (3분 = 180,000 ms) 초과 했을 경우
+		if(now-sentTime > 180000) {
+			// session에서 해당 이메일 삭제
+			session.removeAttribute("auth_"+email);
+			return ResponseEntity.ok("timeOut");
+		}
+		
+		// 입력코드와 세션에 저장된 코드(발급된코드)가 일치할 경우
+		if(inputCode.equals(correctCode)) {
+			// session에서 해당 이메일 삭제
+			session.removeAttribute("auth_"+email);
+			return ResponseEntity.ok("success");
+		}
+		
+		return ResponseEntity.ok("fail");
+	}
+	
+	// 설정한 메일로 코드 전송
+	private void sendEmail(String email, String code) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setTo(email);
+		message.setSubject("[oHoT] 이메일 인증 코드");
+		message.setText("인증코드: " +  code);
+		mailSender.send(message);
+	}
+	
+	// 인증코드 6자리 생성
+	private String createCode() {
+		return String.valueOf((int)(Math.random() * 900000 ) + 100000 );
+	}
+	
+	// 핸드폰 번호 중복검사
+	@ResponseBody
+	@PostMapping("/phoneDuplCheck")
+	public ResponseEntity<?> phoneDuplCheck(@RequestBody Map<String, Object> data) {
+		log.info("data : "+ data);
+		
+		if(data != null) {
+			log.info("data : "+ data.get("memTelno"));
+			MemberVO memberVO = this.memberService.phoneDuplCheck((String)data.get("memTelno"));
+			if(memberVO != null) return ResponseEntity.ok("duplicate");
+			else return ResponseEntity.ok("success");
+		}else return ResponseEntity.ok("fail");
+	}
+	
+	// 닉네임 중복 검사
+	@ResponseBody
+	@PostMapping("/nickDuplCheck")
+	public ResponseEntity<?> nickDuplCheck(@RequestBody Map<String, Object> data) {
+		log.info("data : "+data);
+		
+		if(data != null) {
+			MemberVO memberVO = this.memberService.nickDuplCheck((String)data.get("memNicknm"));
+			if(memberVO != null) return ResponseEntity.ok("duplicate");
+			else return ResponseEntity.ok("success");
+		}else return ResponseEntity.ok("fail");
+	}
+	
+}
+

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohot.admin.mapper.AdminGoodsMapper">
+	<insert id="goodsInsert" parameterType="com.ohot.shop.vo.GoodsVO" >
+	 <selectKey resultType="int" order="BEFORE" keyProperty="gdsNo">
+		SELECT NVL(MAX(GDS_NO),0)+1 FROM GOODS
+	</selectKey>
+	 INSERT INTO GOODS(GDS_NO, GDS_TYPE, GDS_NM, UNIT_PRICE, EXPLN, PIC, REG_DT, COMM_CODE_GRP_NO, ART_GROUP_NO, ART_NO, FILE_GROUP_NO, QTY, GDS_DEL_YN)
+	 VALUES(#{gdsNo}, #{gdsType}, #{gdsNm}, #{ticketVO.tkVprice}, #{expln}, #{pic}, SYSDATE, 'GD02', ${artGroupNo}, ${artNo}, ${fileGroupNo}, 0, 'N')
+	</insert>
+	
+	<insert id="ticketInsert" parameterType="com.ohot.shop.vo.TicketVO">
+		<selectKey resultType="long" order="BEFORE" keyProperty="tkNo">
+			SELECT NVL(MAX(TK_NO),0)+1 FROM TICKET
+		</selectKey>
+		INSERT INTO TICKET(TK_NO, TK_CTGR, TK_LCTN, GDS_NO, TK_START_YMD, TK_FINISH_YMD, POSTER_FILE, TK_VPRICE, TK_RPRICE, TK_SPRICE)
+		VALUES(#{tkNo},#{tkCtgr},#{tkLctn},#{gdsNo},#{tkStartYmd},#{tkFinishYmd},#{posterFile},#{tkVprice},#{tkRprice},#{tkSprice})
+	</insert>
+	
+<!-- 		VALUES(CONCAT(#{tkYmd}, #{tkRound}), TO_CHAR(#{tkYmd}), #{tkRound}, #{tkNo}, #{gdsNm}) -->
+	<insert id="tkDetailInsert" parameterType="com.ohot.shop.vo.TkDetailVO">
+		INSERT INTO TK_DETAIL (TK_DETAIL_NO, TK_YMD, TK_ROUND, TK_NO, GDS_NM)
+		VALUES(CONCAT(3, 7), TO_CHAR(3), 7, 2, '개똥이')
+	</insert>
+	
+	<select id="ticketList" resultType="com.ohot.shop.vo.GoodsVO">
+		SELECT GDS_NO, GDS_TYPE, GDS_NM, UNIT_PRICE, EXPLN, PIC, REG_DT, COMM_CODE_GRP_NO, ART_GROUP_NO, ART_NO, FILE_GROUP_NO, QTY, GDS_DEL_YN
+		FROM GOODS
+		WHERE COMM_CODE_GRP_NO='GD02'
+	</select>
+	
+	<select id="ticketPosterImg" parameterType="long" resultType="com.ohot.vo.FileDetailVO">
+		SELECT FILE_SN, FILE_GROUP_NO, FILE_ORIGINAL_NAME, FILE_SAVE_NAME, FILE_SAVE_LOCATE, FILE_SIZE, FILE_EXT, FILE_MIME, FILE_FANCYSIZE, FILE_SAVE_DATE, FILE_DOWNCOUNT
+		FROM FILE_DETAIL
+		WHERE FILE_GROUP_NO=#{fileGroupNo}
+	</select>
+
+</mapper>

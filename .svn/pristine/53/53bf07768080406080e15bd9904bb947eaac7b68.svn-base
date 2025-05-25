@@ -1,0 +1,65 @@
+package com.ohot.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ohot.mapper.ArtistMapper;
+import com.ohot.service.ArtistService;
+import com.ohot.vo.ArtistVO;
+
+
+
+@Service
+public class ArtistServiceImpl implements ArtistService {
+	
+	@Autowired
+	ArtistMapper artistMapper;
+	
+
+	@Override
+	public List<ArtistVO> artistList() {
+		// TODO Auto-generated method stub
+		return this.artistMapper.artistList();
+	}
+
+	@Override
+	public ArtistVO artistDetail(ArtistVO artistVO) {
+		// TODO Auto-generated method stub
+		return this.artistMapper.artistDetail(artistVO);
+	}
+
+	@Override
+	public int artistInsert(ArtistVO artistVO) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int artistUpdate(ArtistVO artistVO) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int artistDelete(ArtistVO artistVO) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getTotalArtist(Map<String, Object> map) {
+		// TODO Auto-generated method stub
+		return this.artistMapper.getTotalArtist(map);
+	}
+
+	@Override
+	public List<ArtistVO> artistSearchList(Map<String, Object> map) {
+		// TODO Auto-generated method stub
+		return this.artistMapper.artistSearchList(map);
+	}
+
+
+}

@@ -1,0 +1,14 @@
+package com.ohot.mapper;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.ohot.vo.UsersVO;
+
+@Mapper
+public interface UsersMapper {
+	
+	// email로 사용자의 정보 조회
+	public UsersVO findByEmail(String userMail);
+	
+	
+}

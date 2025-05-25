@@ -1,0 +1,16 @@
+package com.ohot.employee.service;
+
+import java.util.List;
+
+import com.ohot.employee.vo.AtrzDocVO;
+import com.ohot.employee.vo.DepartmentVO;
+
+public interface EmployeeService {
+
+	public List<DepartmentVO> treeList();
+
+	public int atrzDocInsert(AtrzDocVO atrzDocVO);
+
+	public DepartmentVO atrzDocDetail(AtrzDocVO atrzDocVO);
+
+}

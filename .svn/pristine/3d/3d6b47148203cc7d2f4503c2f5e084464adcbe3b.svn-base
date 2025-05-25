@@ -1,0 +1,74 @@
+package com.ohot.util.webSocket;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.ohot.shop.service.TicketService;
+
+public class SeatWebSocketHandler extends TextWebSocketHandler{
+	
+	@Autowired
+	TicketService ticketService;
+	
+	// 모든 세션 관리 (브로드캐스트용)
+    private final Set<WebSocketSession> sessions = Collections.synchronizedSet(new HashSet<>());
+
+    // JSON 파싱용
+    // JSON 처리를 위한 ObjectMapper 생성
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        sessions.add(session); // 연결된 클라이언트 세션 저장
+    }
+
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        String payload = message.getPayload(); // JSON 문자열
+        JsonNode jsonNode = objectMapper.readTree(payload); // JSON 문자열을 JsonNode로 변환
+
+        String userId = jsonNode.get("userId").asText(); // 사용자 ID
+        ArrayNode seatsArray = (ArrayNode) jsonNode.get("seats");
+
+        for (JsonNode seatNode : seatsArray) {
+            String seatNo = seatNode.get("seatNo").asText();
+
+            for (WebSocketSession s : sessions) {
+                if (s.isOpen() && !s.getId().equals(session.getId())) {
+                    s.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
+                        "type", "seat-selected",
+                        "seatNo", seatNo,
+                        "userId", userId
+                    ))));
+                }
+                
+//                if (ticketService.isAlreadyReserved(seatNos)) {
+//                    session.sendMessage(new TextMessage(
+//                        objectMapper.writeValueAsString(Map.of(
+//                            "type", "error",
+//                            "reason", "seat-already-selected"
+//                        ))
+//                    ));
+//                    return;
+//                }
+            }
+        }
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        sessions.remove(session); // 세션 제거
+    }
+
+}

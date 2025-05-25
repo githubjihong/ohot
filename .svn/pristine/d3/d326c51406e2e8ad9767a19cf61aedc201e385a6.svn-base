@@ -1,0 +1,441 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<style>
+	#dmIcon {
+	 line-height: 35px;
+	 color: #F86D72;
+	 position: fixed;
+	 height:45px;
+	 right: 70px;
+	 bottom: 12px;
+	 display: inline-flex;
+	 align-items: center;
+	 background: floralwhite;
+	 border-radius: 50px;
+	 padding: 3px 20px;
+	 box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+	 font-family: sans-serif;
+	 font-weight: bold;
+	 border: 1px solid #e5e7eb;
+	 z-index: 10;
+	 cursor: pointer;
+   }
+   #dmList {
+	   position: fixed;
+	   overflow: hidden;
+	   width:0;
+	   height:0;
+	   right: 70px;
+	   bottom:11px;
+	   background-color: white;
+	   z-index: 5;
+	   border-radius: 10px;
+	   border: 1px solid #e5e7eb;
+	   text-align: center;
+	   color: #F86D72; 
+	   transition: width 0.3s ease, height 0.3s ease;
+   } 
+
+   .dmIcon-circle {
+	 width: 24px;
+	 height: 24px;
+	 background-color: #F86D72;
+	 border-radius: 50%;
+	 display: flex;
+	 align-items: center;
+	 justify-content: center;
+	 margin-right: 8px;
+   }
+   .dmIcon-circle svg {
+	 width: 14px;
+	 height: 14px;
+	 fill: white;
+   }
+   .dmIcon-text {
+	 margin-right: 6px;
+	 color: #F86D72;
+   }
+
+
+
+  .artist-name_dm {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .badge-icon_dm {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: white;
+    border-radius: 50%;
+    padding: 3px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .filter-buttons {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .filter-buttons::-webkit-scrollbar {
+    display: none;
+  }
+  .tab{
+		position: absolute;
+		background-color: white;
+	}
+
+.artist-group_dm {
+	margin-bottom: 30px;
+}
+.group-name_dm {
+	font-size: 1.2em;
+	font-weight: bold;
+	color: #181818;
+	margin-bottom: 10px;
+	text-align: left;
+}
+.artist-list_dm {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	list-style: none;
+	padding: 0;
+}
+
+
+</style>
+</head>
+<body>
+<!-- sec 영역 -->
+<sec:authorize access="isAuthenticated()">
+	<sec:authentication property="principal.usersVO" var="userVO" />
+</sec:authorize>
+	<div>
+		<div class="dm-button" id="dmIcon"  onclick="toggleDm()">
+            <div class="dmIcon-circle">
+            <svg viewBox="0 0 24 24">
+                <path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/>
+            </svg>
+            </div>
+            <div class="dmIcon-text"> Message</div>
+        </div>
+	</div>
+
+	<!-- dm List-->
+	<div id="dmList" class="card p-3" style="overflow-y:auto;">
+		<div class="d-flex">
+			<div class="d-flex flex-column align-items-center me-3">
+				<a href="#" data-dm-num="0" onclick="subscribeSideTab(this)"><i class="bi bi-person-add" style="cursor:pointer; font-size: 1.8rem;"></i></i></a>
+				<a href="#" data-dm-num="1" onclick="msgSideTab(this)" class="mt-2"><i class="bi bi-chat-heart" style="cursor:pointer; font-size: 1.8rem;"></i></a>
+			</div>
+	
+			<div class=" d-flex align-items-normal gap-3 flex-wrap">
+				<div class="tab" id="subscribeMainTab" style="z-index:20; width: 90%;">
+					<div class="row">
+						<div class="col-md-3" onclick="myArtist()" style="cursor:pointer;"><h5 id="myArtistText">나의 아티스트</h5></div> 
+						<div class="col-md-3" onclick="recArtist()" style="cursor:pointer;"><h5 id="recArtistText">추천 아티스트</h5></div>
+						<div class="col-md-3"></div>
+						<div class="col-md-1"></div>
+						<div class="col-md-1" style="text-align: end;"><h4><i class="bi bi-search "></i></h4></div>
+						<div class="col-md-1" style="text-align: end;" onclick="toggleDm()"><h4><i class="bi bi-chevron-bar-down" style="margin-right: 8px;"></i></h4></div>
+					</div>
+					<div>
+						<div id="artistList" style="background-color: white; height: 600px;"></div>
+					</div>
+				</div>
+				<div class="tab" id="msgMainTab" style="width: 90%; ">
+					<div class="row">
+						<div class="col-md-10 d-flex align-items-start"><h5>메세지</h5></div> 
+						<div class="col-md-1"></div>
+						<div class="col-md-1" style="text-align: end;" onclick="toggleDm()"><h4><i class="bi bi-chevron-bar-down " style="margin-right: 8px;"></i></h4></div>
+					</div>
+					<div>
+						<div style="background-color: white; height: 600px;">여기 채팅창창</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- dm 구독권 결제 -->
+	<div class="modal" id="buyDmModal">
+		<div class="modal-dialog modal-dialog-centered">
+		  <div class="modal-content">
+
+			<!-- Modal body -->
+			<div class="modal-body">
+			  프로필 사진이랑 아티스트 이름 그리고 가격고지 혜택 및 유의사항 고지 
+			  구독하기 누르면 결제창으로 이동
+			</div>
+	  
+			<!-- Modal footer -->
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-danger" data-bs-dismiss="modal">취소</button>
+			  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">구독하기</button>
+			</div>
+	  
+		  </div>
+		</div>
+	  </div>
+	  
+
+<script type="text/javascript">
+const dmTabs =document.querySelectorAll(".tab");
+
+function buyDm(){
+	event.preventDefault();
+	alert("구독권모달창띄워라")
+}
+
+function subscribeSideTab(subTab){
+	event.preventDefault();
+	// alert("전체 아티스트 나와랍");
+
+	//탭 초기화
+	for(let i=0; i<dmTabs.length; i++){
+		dmTabs[i].style.zIndex =11 ;    
+	}
+
+	dmTabs[subTab.dataset.dmNum].style.zIndex =20;
+
+}
+
+function myArtist(){
+	document.querySelector('#myArtistText').style.color="black";
+	document.querySelector('#recArtistText').style.color="gray";
+	// alert("내가 구독한 커뮤니티 아티스트");
+	axios.post("/oho/dm/myArtist").then(resp=>{
+		const myArtistList = resp.data;
+		console.log("내가 구독한 커뮤니티 아티스트 : ", myArtistList);
+
+		const myArtistListDiv = document.getElementById("artistList");
+		myArtistListDiv.innerHTML = ""; 
+		let artistLink =`
+			<div class="filter-buttons mb-3">
+			
+			</div>`;
+			myArtistListDiv.insertAdjacentHTML('beforeend', artistLink);
+			// alert(artistAllList[0].artGroupNm);
+				if (myArtistList.length > 0) {
+				let prevGroup = null;
+				let groupHtml = "";
+
+				myArtistList.forEach((artist, i) => {
+					const artistName = artist.artGroupNm;
+					const artistNo = artist.artGroupNo;
+					const artistVOList = artist.artistVOList;
+
+					// 새로운 그룹이면 이전 그룹 HTML 마무리하고 추가
+					if (artistName !== prevGroup) {
+						// 이전 그룹이 존재하면 닫아줌
+						if (groupHtml !== "") {
+							groupHtml += `</ul></div>`;
+							myArtistListDiv.insertAdjacentHTML('beforeend', groupHtml);
+						}
+
+						// 새로운 그룹 시작
+						groupHtml = `
+							<div class="artist-group_dm">
+								<p class="group-name_dm">\${artistName}</p>
+								<ul class="artist-list_dm">
+						`;
+						prevGroup = artistName;
+					}
+
+					artistVOList.forEach(artistInfo => {
+						groupHtml += `
+							<li class="artist_item_dm" style="text-align:center;">
+								<div role="button" tabindex="0">
+									<div>
+										<div>
+											<img src="/upload\${artistInfo.fileSaveLocate}" width="100" height="100" style="border-radius: 50%; object-fit: cover;">
+										</div>
+									</div>
+									<strong>\${artistInfo.artActNm}</strong>
+								</div>
+							</li>
+						`;
+					});
+
+					// 마지막 아티스트일 경우 그룹 닫기
+					if (i === myArtistList.length - 1) {
+						groupHtml += `</ul></div>`;
+						myArtistListDiv.insertAdjacentHTML('beforeend', groupHtml);
+					}
+				});
+			} else {
+				myArtistListDiv.innerHTML = "<p><br>구독중인 아티스트가 없습니다 <br> <h5>아티스트를 구독하고 DM을 시작하세요💌</h5></p>";
+			}
+		})
+		.catch(error => {
+			console.error("Error:", error);
+		});
+
+}
+
+function recArtist(){
+	document.querySelector('#myArtistText').style.color="gray";
+	document.querySelector('#recArtistText').style.color="black"; 
+	// alert("구독제외 전체 아티스트 리스트트");
+
+	axios.post("/oho/dm/artistList").then(resp=>{
+		const artistAllList = resp.data;
+		console.log("전체 아티스트 목록 : ", artistAllList);
+
+		const artistListDiv = document.getElementById("artistList");
+		artistListDiv.innerHTML = ""; 
+		let artistLink =`
+			<div class="filter-buttons mb-3">
+			
+			</div>`;
+			artistListDiv.insertAdjacentHTML('beforeend', artistLink);
+			// alert(artistAllList[0].artGroupNm);
+				if (artistAllList.length > 0) {
+				let prevGroup = null;
+				let groupHtml = "";
+
+				artistAllList.forEach((artist, i) => {
+					const artistName = artist.artGroupNm;
+					const artistNo = artist.artGroupNo;
+					const artistVOList = artist.artistVOList;
+
+					// 새로운 그룹이면 이전 그룹 HTML 마무리하고 추가
+					if (artistName !== prevGroup) {
+						// 이전 그룹이 존재하면 닫아줌
+						if (groupHtml !== "") {
+							groupHtml += `</ul></div>`;
+							artistListDiv.insertAdjacentHTML('beforeend', groupHtml);
+						}
+
+						// 새로운 그룹 시작
+						groupHtml = `
+							<div class="artist-group_dm">
+								<p class="group-name_dm">\${artistName}</p>
+								<ul class="artist-list_dm">
+						`;
+						prevGroup = artistName;
+					}
+
+					artistVOList.forEach(artistInfo => {
+						groupHtml += `
+							<li class="artist_item_dm" style="text-align:center; margin-left: 10px;" data-bs-toggle="modal" data-bs-target="#buyDmModal">
+								<div role="button" tabindex="0">
+									<div>
+										<div>
+											<img src="/upload\${artistInfo.fileSaveLocate}" width="100" height="100" style="border-radius: 50%; object-fit: cover;">
+										</div>
+									</div>
+									<strong>\${artistInfo.artActNm}</strong>
+								</div>
+							</li>
+						`;
+					});
+
+					// 마지막 아티스트일 경우 그룹 닫기
+					if (i === artistAllList.length - 1) {
+						groupHtml += `</ul></div>`;
+						artistListDiv.insertAdjacentHTML('beforeend', groupHtml);
+					}
+				});
+			} else {
+				artistListDiv.innerHTML = "<p>구독중인 아티스트가 없습니다 <br> 아티스트를 구독하고 DM을 시작하세요💌</p>";
+			}
+		})
+		.catch(error => {
+			console.error("Error:", error);
+		});
+}
+
+
+function msgSideTab(msgTab){
+	event.preventDefault();
+	// alert("메세지 탭 나와랍");
+
+	//탭 초기화
+	for(let i=0; i<dmTabs.length; i++){
+		dmTabs[i].style.zIndex =11 ;    
+	}
+
+	dmTabs[msgTab.dataset.dmNum].style.zIndex =20;
+}
+
+let isDmOpen = false;
+
+function toggleDm() {
+	if (isDmOpen) {
+		// 닫기
+		dmList.style.width = "0px";
+		dmList.style.height = "0px";
+		document.querySelector('#dmIcon').style.zIndex = 10;
+		isDmOpen = false;
+	} else {
+		// 열기
+		dmList.style.width = "700px";
+		dmList.style.height = "700px";
+		document.querySelector('#dmIcon').style.zIndex = 3;
+
+		console.log("로그인했음:", '${not empty userVO.memberVO.memNo}');
+		if (${not empty userVO.memberVO.memNo}) {
+			myArtist();
+		} else {
+			recArtist();
+		}
+
+		isDmOpen = true;
+	}
+}
+
+/* 
+let dmTimer = null;
+function fShow(){
+
+	clearTimeout(dmTimer); // 기존 타이머 제거
+
+	if(!dmList.style.width){
+		dmList.style.width="0px";
+		dmList.style.height="0px";
+	}
+	dmList.style.width=parseInt(dmList.style.width)+20 + "px";
+	dmList.style.height=parseInt(dmList.style.height)+20 + "px";
+
+	if(parseInt(dmList.style.width) >= 700){
+		console.log("로그인했음: ",'${not empty userVO.memberVO.memNo}')
+		if(${not empty userVO.memberVO.memNo}){
+			myArtist();
+		}else{
+			recArtist();
+		}
+		showTimer = null;
+		return;
+	}
+	dmTimer = setTimeout(fShow, 3);
+	
+	document.querySelector('#dmIcon').style.zIndex=3;
+	
+}
+
+function fHide(){
+
+	clearTimeout(dmTimer); // 기존 타이머 제거
+
+	dmList.style.width=parseInt(dmList.style.width)-15 + "px";
+	dmList.style.height=parseInt(dmList.style.height)-15 + "px";
+
+	if(parseInt(dmList.style.width) <=0) return;
+	setTimeout(fHide,3);
+
+	hideTimer = setTimeout(fHide, 3);
+
+	document.querySelector('#dmIcon').style.zIndex=10;
+
+	dmTimer = setTimeout(fHide, 3);
+} */
+
+</script> 
+</body>  
+</html>

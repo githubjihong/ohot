@@ -1,0 +1,1007 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="../header.jsp" %>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<%-- <link rel="stylesheet" type="text/css" href="<%=request.getContextPath() %>/resources/static/css/bootstrap.min.css" /> --%>
+<title>팬 커뮤니티</title>
+    <style>
+    	#endMessage {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    font-size: 16px;
+    margin-top: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+    body {
+        background-color: #f0f2f5; /* Weverse 느낌의 배경 */
+    }
+
+        .top-nav {
+        
+            background-color: rgb(211,23,23);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .artist-card {
+            border-radius: 15px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .artist-profile {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .feed-box {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .post-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+        }
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            
+        }
+        .board-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 20%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .post-content {
+            font-size: 14px;
+            color: #333;
+        }
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .btn-like, .btn-comment {
+            border: none;
+            background: none;
+            color: #6c757d;
+            cursor: pointer;
+        }
+                /* 모달 스타일 */
+        .custom-modal .modal-content {
+            border-radius: 20px;
+            padding: 20px;
+        }
+        .custom-modal .modal-header {
+            border-bottom: none;
+            text-align: center;
+            justify-content: center;
+        }
+        .custom-modal .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .custom-modal .modal-body {
+            text-align: center;
+        }
+        .custom-textarea1 {
+            width: 100%;
+            min-height: 50px;
+            border: none;
+            background-color: #f8f9fa;
+            resize: none;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 10px;
+            outline: none;
+        }
+        .custom-textarea2 {
+            width: 100%;
+            min-height: 300px;
+            border: none;
+            background-color: #f8f9fa;
+            resize: none;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 10px;
+            outline: none;
+        }
+        .custom-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-custom {
+            background-color: #1c1c1c;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 20px;
+        }
+    .btn-weverse {
+        background-color: white;
+        color: #6d8f38;
+        font-size: 16px;
+        font-weight: bold;
+        border: 2px solid #6d8f38;
+        border-radius: 25px;
+        padding: 12px;
+        width: 100%;
+        display: block;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .btn-weverse:hover {
+        background-color: #6d8f38;
+        color: white;
+    }
+        .btn-custom:disabled {
+            background-color: #ccc;
+        }
+        .icon-btn {
+            font-size: 24px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .dropdown-menu {
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+}
+.dropdown-item {
+    font-size: 14px;
+    font-weight: 500;
+}
+.badge-artist {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(45deg, #FF1493, #FF69B4); /* 핑크 그라데이션 */
+    border-radius: 8px;
+}
+.me-2{
+	cursor:pointer;
+}
+    </style>
+</head>
+<body>
+<sec:authorize access="isAuthenticated()">
+   <sec:authentication property="principal.usersVO" var="userVO"/>
+</sec:authorize>
+<div class="row mt-5"></div>
+<form id="artGroupInfo" name="artGroupInfo" >
+<input type="hidden" id="artGroupNo" name="artGroupNo" value="${communityProfileVO.artGroupNo }">
+<input type="hidden" id="memNo" name="memNo" value="${communityProfileVO.memNo }">
+<input type="hidden" id="comProfileNo" name="comProfileNo" value="${communityProfileVO.comProfileNo }">
+<input type="hidden" id="comNm" name="comNm" value="${communityProfileVO.comNm }">
+<input type="hidden" id="saveFileLocate" name="saveFileLocate" value="${communityProfileVO.fileGroupVO.fileDetailVOList[0].fileSaveLocate }">
+<input type="hidden" id="userNo" name="userNo" value="${userVO.userNo }">
+<input type="hidden" id="authNm" name="authNm" value="${userVO.userAuthList[0].authNm }">
+</form>
+${userVO }
+${communityProfileVO }
+<div class="top-nav">Fan</div>
+<div class="container mt-4">
+    <div class="row">
+        <!-- 아티스트 카드 -->
+        <div class="col-md-8 mx-auto">
+            <div class="d-flex justify-content-between">
+                
+                <div class="artist-card">
+                    <img src="/images/artist1.jpg" class="artist-profile">
+                    <p class="fw-bold">MOON SUA <span class="text-primary">✔</span></p>
+                    <p>ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ</p>
+                </div>
+                <div class="artist-card">
+                    <img src="/images/artist2.jpg" class="artist-profile">
+                    <p class="fw-bold">MOON SUA <span class="text-primary">✔</span></p>
+                    <p>30분 뒤에 만나요 💜</p>
+                </div>
+                <div class="artist-card">
+                    <img src="/images/artist3.jpg" class="artist-profile">
+                    <p class="fw-bold">SUHYEON <span class="text-primary">  </span></p>
+                    <p>진짜로...? 구글에서 가져온 게 아니라...?</p>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+   
+
+    <!-- 댓글 모달 버튼 -->
+
+
+    <!-- 댓글 모달 -->
+    <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="replyModalLabel">댓글</h5>
+                    
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="replyList"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- 뎃글 모달 끝 -->
+
+    <!-- 게시물 입력 창 -->
+    	<div class="container mt-4">
+	    	<div class="col-md-8 mx-auto">
+	    	<c:if test="${userVO.userNo == communityProfileVO.memNo && userVO.userAuthList[0].authNm=='ROLE_MEM'}">
+	           <button class="btn-weverse" data-bs-toggle="modal" data-bs-target="#postModal">포스트 쓰기</button>
+	        </c:if>   
+			</div>
+		</div>
+</div>
+<!-- 모달 -->
+<div class="modal fade custom-modal" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- 모달 헤더 -->
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="postModalLabel">포스트 쓰기</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- 모달 바디 -->
+            
+            	<form name="frm" action="/oho/community/addBoard" method="post" enctype="multipart/form-data">
+
+				<input type="hidden" id="artGroupNo" name="artGroupNo" value="${communityProfileVO.artGroupNo }">
+				<input type="hidden" id="memNo" name="memNo" value="${communityProfileVO.memNo }">
+				<input type="hidden" id="comProfileNo" name="comProfileNo" value="${communityProfileVO.comProfileNo }">
+				<input type="hidden" id="comProfileNo" name="comProfileVO" value="${communityProfileVO }">
+
+	            <div class="modal-body">
+	            	<input type="text" class="form-control mb-3" id="boardTitle" name="boardTitle" placeholder="제목을 입력해주세요" />
+	                <input type="text" class="custom-textarea2" id="boardContent" name="boardContent" placeholder="위버스에 남겨보세요..." oninput="toggleSubmitButton()"></input>
+	                
+	            </div>
+				
+	            <!-- 모달 푸터 -->
+	            <div class="modal-footer custom-footer">
+                <div>
+                      <label for="formFile" class="form-label"></label>
+ 					  <input class="form-control" type="file" id="formFile"  multiple  name="uploadFile">
+                </div>
+                <div>
+                <input type="checkbox" name="boardOnlyFan"  value="Y" />Hide from Artists
+                </div>
+                <button type="button" class="btn btn-custom" id="submitBtn" onclick="fn_board_add_submit()" disabled>등록</button>
+                </div>
+                </form>
+            
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" class="img-fluid">
+      </div>
+    </div>
+  </div>
+</div>
+
+<h1 style="text-align: center; margin-bottom : 20px"></h1>
+<div class="container mt-4" id="divBoards">
+<!--게시글이 쌓이는 곳  -->
+</div>
+<div id="endMessage" style="display:none; text-align: center; font-size: 16px; color: black;">
+    <strong>마지막 게시글 입니다</strong>
+</div>
+
+
+<script type="text/javascript">
+//자바에서 담아서 보낸(join) 값 및 principle에 들어있는 값
+let artGroupNo = $("form[name='artGroupInfo']").find('#artGroupNo').val();
+let myComProfileNo = $("form[name='artGroupInfo']").find('#comProfileNo').val();
+let memNo =  $("form[name='artGroupInfo']").find('#memNo').val();
+let comNm = $("form[name='artGroupInfo']").find('#comNm').val();
+let userNo = $("form[name='artGroupInfo']").find('#userNo').val();
+let authNm = $("form[name='artGroupInfo']").find('#authNm').val();
+let mySaveFileLocate = $("form[name='artGroupInfo']").find('#saveFileLocate').val();
+	let currentPage =1;
+	let isLastPage = false;
+
+	
+
+	//모달 취소시 입력값 초기화
+	$(document).ready(function(){
+		$("#postModal").on("hidden.bs.modal", function () {
+			
+		    document.forms["frm"]?.reset();
+		    document.getElementById("submitBtn").disabled = true;
+		    
+		});
+	});
+	//클릭시 사진 크게 보이게하는 기능
+	  function openImageModal(src) {
+		    document.getElementById("modalImage").src = src;
+		    new bootstrap.Modal(document.getElementById('imageModal')).show();
+		  }
+	  
+	//제목과 내용을 입력하지 않으면
+	function toggleSubmitButton() {
+	    const textArea = document.getElementById("boardContent");
+	    const textArea2 = document.getElementById("boardTitle");
+	    const submitBtn = document.getElementById("submitBtn");
+
+	    if (textArea.value.trim() !== "" && textArea2.value.trim() !== "") {
+	        submitBtn.disabled = false;
+	    } else {
+	        submitBtn.disabled = true;
+	    }
+	}
+//게시물 추가 submit
+	function fn_board_add_submit() {
+		$("form[name='frm']").submit();
+	}
+
+//댓글 좋아요	
+function fn_reply_likeYn(boardNo,replyNo){
+	let data = {
+			"comProfileNo":myComProfileNo,
+			"replyNo":replyNo,
+			"boardNo":boardNo
+            
+	};
+	let url="/oho/community/replyLikeYnAjax?"+$.param(data);
+	console.log("data : ",data);
+	
+	 $.ajax({
+			url:url,
+			contentType:"application/json; charset=utf-8",
+			type:"get",
+			dataType:"json"
+    , success: function(replyLikeCnt) {
+ 	    console.log("replyLikeCnt 성공했습니다 ", replyLikeCnt);
+ 	   
+ 	    let str =`\${replyLikeCnt}`;
+ 	  $(`#replyLikeCnt\${replyNo}`).html(str);
+ 	},
+		error : function() {
+         alert('error');
+   },
+   complete : function() {       
+	 	replyToggleLike(boardNo,replyNo);
+ 	  }
+	 }); //ajax
+}
+//댓글 좋아요 토글
+function replyToggleLike(boardNo,replyNo) {
+    let replyLikeBtn = document.getElementById(`replyLikeBtn\${replyNo}`);
+    let heartIcon = document.getElementById(`heartIcon\${replyNo}`);
+    console.log(heartIcon);
+	console.log("들어오고 있니?",replyNo);
+    let isLiked = heartIcon.classList.contains("bi-heart-fill");
+
+    if (isLiked) {
+        heartIcon.classList.remove("bi-heart-fill");
+        heartIcon.classList.add("bi-heart");
+        replyLikeBtn.classList.remove("btn-danger");
+        replyLikeBtn.classList.add("btn-outline-danger");
+
+    } else {
+        heartIcon.classList.remove("bi-heart");
+        heartIcon.classList.add("bi-heart-fill");
+        replyLikeBtn.classList.remove("btn-outline-danger");
+        replyLikeBtn.classList.add("btn-danger");
+
+    }
+}	
+
+//게시물 좋아요 토글
+function fn_board_likeYn(boardNo){
+	
+
+	
+	
+	let data = {
+			"comProfileNo":myComProfileNo,
+			"boardNo":boardNo
+
+	};
+	let url="/oho/community/boardLikeYnAjax?"+$.param(data);
+	console.log("data : ",data);
+	
+	 $.ajax({
+			url:url,
+			contentType:"application/json; charset=utf-8",
+			type:"get",
+			dataType:"json"
+    , success: function(boardLikeCnt) {
+ 	    console.log("boardLikeCnt 성공했습니다 ", boardLikeCnt);
+ 	   
+ 	    let str =`\${boardLikeCnt}`;
+ 	  $(`#boardLikeCnt\${boardNo}`).html(str);
+ 	  
+ 	},
+		error : function() {
+         alert('error');
+   },
+   complete : function() {       
+	 	toggleLike(boardNo);
+  	  }
+	 }); //ajax
+}
+//토글 정의 -> 빈하트 하트 유무 체크해서 변화 ( 부트스트랩 5 기능 )
+function toggleLike(boardNo) {
+    let boardLikeBtn = document.getElementById(`boardLikeBtn\${boardNo}`);
+    let heartIcon = document.getElementById(`heartIcon\${boardNo}`);
+    console.log(heartIcon);
+	console.log("들어오고 있니?",boardNo);
+    let isLiked = heartIcon.classList.contains("bi-heart-fill");
+
+    if (isLiked) {
+        heartIcon.classList.remove("bi-heart-fill");
+        heartIcon.classList.add("bi-heart");
+        boardLikeBtn.classList.remove("btn-danger");
+        boardLikeBtn.classList.add("btn-outline-danger");
+
+    } else {
+        heartIcon.classList.remove("bi-heart");
+        heartIcon.classList.add("bi-heart-fill");
+        boardLikeBtn.classList.remove("btn-outline-danger");
+        boardLikeBtn.classList.add("btn-danger");
+
+    }
+}	
+	
+	//댓글 추가
+function fn_add_replies(boardNo){
+	
+	let replyContent =$(`#replyContent\${boardNo}`).val();
+	console.log("replyContent",replyContent);
+	console.log("memNo",memNo);
+	let data ={
+			"artGroupNo":artGroupNo,
+			"boardNo":boardNo,
+			"comProfileNo":myComProfileNo,
+			"replyContent":replyContent,
+			"comNm":comNm,
+			"memNo":memNo
+		};
+		
+		let url = "/oho/community/addReplyAjax?"+$.param(data);
+		console.log("data : ",data);
+		 $.ajax({
+				url:url,
+				contentType:"application/json; charset=utf-8",
+				type:"get",
+				dataType:"json"
+	       , success: function(communityReplyVO) {
+	    	    console.log("communityReplyVO: ", communityReplyVO);
+	    	    console.log("mySaveFileLocate: ", mySaveFileLocate);
+	    	    
+	    	    let str = "";
+ 	    	    str += `
+	    	        <div class="d-flex align-items-start mb-2" id="\${communityReplyVO.replyNo}">`;
+	    	           
+	    	        
+                if(mySaveFileLocate.length > 0){
+                    
+					
+                        str += `<img src="/upload\${mySaveFileLocate}" class="profile-img" onclick="openImageModal(this.src)" />`;
+				
+                        
+            	}else{       	
+                	str += ``;
+                };
+                if(communityReplyVO.memNo==userNo){
+
+                	
+                	str+=`                <!-- 드롭다운 컨테이너 -->
+                		<div class="position-absolute top-1 end-0">
+                        <div class="dropdown">
+                        <!-- 점 3개 버튼 -->
+                        <button class="btn btn-light border-0" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            &#x22EE; <!-- 점 3개 아이콘 (세로) -->
+                        </button>
+                        
+                        <!-- 드롭다운 메뉴 -->
+                        <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="dropdownMenuButton">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center text-danger" onclick="fn_delete_reply(\${communityReplyVO.replyNo},\${communityReplyVO.boardNo})">
+                                    <span class="me-2">🗑️삭제하기</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    </div>
+                			
+                	`;
+                	
+                }
+                else{
+                	str+=`
+                		<div class="position-absolute top-1 end-0">
+                		<div class="dropdown">
+                        <!-- 점 3개 버튼 -->
+                        <button class="btn btn-light border rounded-circle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            &#x22EE; <!-- 점 3개 아이콘 (수직) -->
+                        </button>
+                        
+                        <!-- 드롭다운 메뉴 -->
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <span class="me-2">🔔</span> 신고하기
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                	</div>		
+                	`;
+                } 
+                
+                str +=   `  <div><strong><a href="/oho/community/profileDetail?comProfileNo=\${communityReplyVO.comProfileNo}" class="text-dark text-decoration-none fw-bold">
+	    	                        \${communityReplyVO.comNm}
+	    	                    </a></strong>
+	    	                    <p id="repCreateDt">방금</p>
+	    	                <p class="mb-1">\${communityReplyVO.replyContent}</p>`;
+	    	                
+	    	              
+	    	    str +=   `      <button class="btn btn-outline-danger" id="replyLikeBtn\${communityReplyVO.replyNo}" onclick="fn_reply_likeYn(\${communityReplyVO.boardNo}, \${communityReplyVO.replyNo})">
+                    			 <i id="heartIcon\${communityReplyVO.replyNo}" class="bi bi-heart"></i> <span id="replyLikeCnt\${communityReplyVO.replyNo}">\${communityReplyVO.replyLikeCnt}</span>
+	    	                    </button>
+	    	                </div>
+	    	            </div>
+	    	       
+	    	    `;
+
+	    	    console.log(str);
+			
+	    	    // 바로 fn_page()로 데이터 전달하여 출력
+	    	   $(`#replyList\${boardNo}`).prepend(str);
+	    	    
+	    	    
+	    	},
+			error : function() {
+	            alert('error');
+	      },complete : function(communityReplyVO){
+              let replyInput = document.querySelector(`#replyContent\${boardNo}`);
+	    	  replyInput.value="";
+	    	  console.log(communityReplyVO.responseJSON);
+			  let repCnt = $(`#repCnt\${communityReplyVO.responseJSON.boardNo}`).html();
+              let cnt = parseInt(repCnt);
+              $(`#repCnt\${communityReplyVO.responseJSON.boardNo}`).html(cnt+1);
+	      }
+	
+		 }); //ajax
+		 
+		 
+	}
+	
+
+//댓글 모달	
+function fn_load_replies(boardNo) {
+     //토글 방식으로 댓글 보였다 안보였다 하기
+/* 	$(`#\${boardNo}`).toggle();
+	$(`#repCnt\${boardNo}`).toggle(); */
+	
+	console.log("오고있니?",boardNo)
+    document.getElementById("replyModalLabel").textContent = `게시글\${boardNo}`;
+    let reply = document.getElementById(`\${boardNo}`);
+    
+    $(`#replyList${boardNo}`).html(reply.innerHTML);
+    
+    console.log("리플?",reply)
+    
+	
+    
+    new bootstrap.Modal(document.getElementById('replyModal')).show();
+	
+	
+    
+}
+//게시물 리스트 ajax 
+function fn_board_list(currentPage,keyword){
+	if(currentPage==""||currentPage==null||currentPage== undefined){
+	      currentPage = "1";
+	   }
+	   //확장성 키워드 검색
+  if(keyword==""||keyword==null||keyword== undefined){
+        keyword = "";
+  }
+  //게시글 리스트 아작스로 받기
+let data ={
+		"artGroupNo":artGroupNo,
+		"currentPage":currentPage,
+		"keyword":keyword
+	};
+	let url = "/oho/community/fanBoardListPost?currentPage=" + currentPage;
+	console.log("data : ",data);
+	 $.ajax({
+			url:url,
+			contentType:"application/json; charset=utf-8",
+			data:JSON.stringify(data),
+			type:"post",
+			dataType:"json"
+       , success: function(boardPage) {
+    	    console.log("boardPage:", boardPage);
+    	    console.log("boardPage.content:", boardPage.content);
+    	    let boardListVO = boardPage.content;
+    	    isLastPage = boardPage.isLastPage;
+            if (isLastPage) {
+                $('#endMessage').show();  // 마지막 페이지 도달 시 메시지 표시
+            }
+    	    console.log("boardListVO:", boardListVO);
+
+    	    // 바로 fn_page()로 데이터 전달하여 출력
+    	    fn_page(boardListVO);
+    	},
+		error : function() {
+            alert('error');
+      },
+     complete : function() {       
+    	 	
+    	  }
+	 }); //ajax
+     
+}
+//div에 뿌려주는 부분
+function fn_page(boardListVO){
+    
+    // 데이터 구조 확인
+    console.log("userNo:",userNo);
+	console.log("fn_page->boardListVO : ", boardListVO);
+/* 댓글 좋아요 버튼, 게시글 좋아요 버튼 누르는 펑션 만듬 ( 처리해야함 )
+    좋아요 누른 게시글 - > 버튼 다르고 취소하면 또 다르게 해야함
+    */
+    let str = "";
+    
+    /* element
+    {
+    "boardNo": 3,
+    "boardTitle": "테스트3",
+    "boardContent": "user->4",
+    "boardOnlyMembership": "N",
+    "boardDelyn": "N",
+    "boardCreateDt": "2025-04-01T06:05:07.000+00:00",
+    "boardOnlyFan": "N",
+    "urlCategory": null,
+    "comProfileNo": 4,
+    "memNo": 3,
+    "comNm": "IU테스트용계정",
+    "fileGroupNo": 0,
+    "fileGroupVO": {{...
+    */
+    $.each(boardListVO, function(i, element) {
+        
+     	console.log("check : ",element.fileGroupVO);
+    	console.log("권한 체크 : ",element.boardOnlyFan,authNm);
+    	console.log("boardListVO : ",element);
+		if(((element.boardOnlyFan == 'Y' && authNm == 'ROLE_MEM') 
+		           || (element.boardOnlyFan == 'N' && authNm == 'ROLE_MEM') 
+		           || (element.boardOnlyFan == 'N' && authNm == 'ROLE_ART'))
+		           && element.boardDelyn == 'N'){
+        str += `
+
+        <div class="col-md-8  mx-auto">
+            <div class="card shadow-sm rounded">
+                <div class="card-header bg-white d-flex align-items-center">
+
+                    
+                        <img src="/upload\${element.fileGroupVO2.fileDetailVOList[0].fileSaveLocate}" class="profile-img" onclick="openImageModal(this.src)">
+                   		
+                    <div style="display: flex; gap: 20px;">
+                    <a href="/oho/community/profileDetail?comProfileNo=\${element.comProfileNo}" class="text-dark text-decoration-none fw-bold"><h5 class="card-title fw-bold"><strong>\${element.comNm}</strong></h5></a>`;
+                    
+
+                    
+                str+=`    <p><h3>       \${element.boardTitle}</h3></p>
+                    </div>`;
+                    
+
+
+                
+                    
+        if(element.memNo==userNo){
+
+        	
+        	str+=`                <!-- 드롭다운 컨테이너 -->
+        		<div class="position-absolute top-1 end-0">
+                <div class="dropdown">
+                <!-- 점 3개 버튼 -->
+                <button class="btn btn-light border-0" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    &#x22EE; <!-- 점 3개 아이콘 (세로) -->
+                </button>
+                
+                <!-- 드롭다운 메뉴 -->
+                <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="dropdownMenuButton">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="/oho/community/editBoard?boardNo=\${element.boardNo}">
+                            <span class="me-2">✏️</span> 수정하기
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center text-danger" href="/oho/community/deleteBoard?boardNo=\${element.boardNo}">
+                            <span class="me-2">🗑️</span> 삭제하기
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            </div>
+        			
+        	`;
+        	
+        }
+        else{
+        	str+=`
+        		<div class="position-absolute top-1 end-0">
+        		<div class="dropdown">
+                <!-- 점 3개 버튼 -->
+                <button class="btn btn-light border rounded-circle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    &#x22EE; <!-- 점 3개 아이콘 (수직) -->
+                </button>
+                
+                <!-- 드롭다운 메뉴 -->
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <span class="me-2">🔔</span> 신고하기
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        	</div>		
+        	`;
+        }
+
+          str+=`     </div>
+                <div class="card-body">
+                <p id="boardCreateDt">\${element.boardCreateDate}</p>
+                `;
+
+                
+                    
+                if(element.fileGroupVO?.fileDetailVOList?.length > 0){
+                      
+					$.each(element.fileGroupVO.fileDetailVOList,function(idx,fileDetailVO){
+                        str += `<img src="/upload\${fileDetailVO.fileSaveLocate}" class="board-img" onclick="openImageModal(this.src)" />`;
+					});
+                        
+            	}else{       	
+                	str += ``;
+                };
+                
+                str += `<p class="card-text">\${element.boardContent}</p>
+                </div>
+                <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                    <button class="btn btn-outline-danger" id="boardLikeBtn\${element.boardNo}" onclick="fn_board_likeYn(\${element.boardNo})">`;
+                 str+=`<i id="heartIcon\${element.boardNo}" class="bi bi-heart`;
+                $.each(element.boardLikeList,function(idx,boardLike){
+                	if(boardLike.memNo==memNo){
+                		str+=`-fill`;
+                		
+                		} 
+                });
+               str+=`"></i>`;
+                   
+                    
+              str+=`<span id="boardLikeCnt\${element.boardNo}">\${element.boardLikeCnt}</span>
+                    </button>`;
+
+            //댓글 모달 스타트        
+            str+= ` 
+                    <button class="btn btn-light" onclick="fn_load_replies(\${element.boardNo})">
+                    💬 댓글(<span id="repCnt\${element.boardNo}">\${element.replyList.length}</span>)
+                    </button>
+                	`;    
+                    
+        	str+=`  </div>
+                <div class="comment-section p-3 bg-light rounded" id="\${element.boardNo}" style="display: none;">
+                    <div class="input-group">
+                        <input type="text" id="replyContent\${element.boardNo}" class="form-control" placeholder="댓글을 입력하세요">
+                        <button class="btn btn-primary" onclick="fn_add_replies(\${element.boardNo})">등록</button>
+                    </div>
+                    <div id="replyList\${element.boardNo}" class="mt-3">`;
+                    
+                    if (!element.replyList || element.replyList.length <= 0 ) {
+                        str += `<p class="text-muted text-center">댓글이 없습니다.</p>`;
+                    } else {
+                        element.replyList.forEach(reply => {
+                        	                    	                    	
+                        	if(reply.replyDelyn=='N'){
+                            str += `
+                            <div class="d-flex align-items-start mb-2" id="\${reply.replyNo}">
+                            	 <img src="/upload\${reply.fileGroupVO.fileDetailVOList[0].fileSaveLocate}" class="profile-img" onclick="openImageModal(this.src)">    
+                                <div>
+                                    <strong><a href="/oho/community/profileDetail?comProfileNo=\${reply.comProfileNo}" class="text-dark text-decoration-none fw-bold">\${reply.comNm}</a>`;
+                                   
+                               if(reply.comAuth=='ROLE_ART'){
+                                 str+=`<span class="badge-star">🎵</span>`;        
+                                    }  
+                                str+=`  </strong>`;
+                            if(reply.memNo==userNo){
+
+                            	
+                            	str+=`                <!-- 드롭다운 컨테이너 -->
+                            		<div class="position-absolute top-1 end-0">
+                                    <div class="dropdown">
+                                    <!-- 점 3개 버튼 -->
+                                    <button class="btn btn-light border-0" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        &#x22EE; <!-- 점 3개 아이콘 (세로) -->
+                                    </button>
+                                    
+                                    <!-- 드롭다운 메뉴 -->
+                                    <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="dropdownMenuButton">
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center text-danger" onclick="fn_delete_reply(\${reply.replyNo},\${element.boardNo})">
+                                                <span class="me-2">🗑️삭제하기</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                </div>
+                            			
+                            	`;
+                            	
+                            }
+                            else{
+                            	str+=`
+                            		<div class="position-absolute top-1 end-0">
+                            		<div class="dropdown">
+                                    <!-- 점 3개 버튼 -->
+                                    <button class="btn btn-light border rounded-circle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        &#x22EE; <!-- 점 3개 아이콘 (수직) -->
+                                    </button>
+                                    
+                                    <!-- 드롭다운 메뉴 -->
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                                <span class="me-2">🔔</span> 신고하기
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            	</div>		
+                            	`;
+                            }        
+                            str+=`  <p id="repCreateDt">\${reply.repCreateDate}</p>
+                                    <p class="mb-1">\${reply.replyContent}</p>
+                                    <button class="btn btn-outline-danger" id="replyLikeBtn\${reply.replyNo}" onclick="fn_reply_likeYn(\${reply.boardNo}, \${reply.replyNo})">`;
+                                    str+=`<i id="heartIcon\${reply.replyNo}" class="bi bi-heart`;
+                                        $.each(reply.replyLikeList,function(idx,replyLike){
+                                        	if(replyLike.memNo==memNo){
+                                        		str+=`-fill`;
+                                        		
+                                        		} 
+                                        });
+                                       str+=`"></i>`;
+                                    
+                     str+=`       <span id="replyLikeCnt\${reply.replyNo}">\${reply.replyLikeCnt}</span></button>
+                                </div>
+                            </div>`;
+                        	}});
+                    }
+      
+                    
+
+                    
+                    
+        str += `</div></div></div></div>`;
+		}
+    });
+//본문 목록
+
+$("#divBoards").append(str);
+
+}
+
+function fn_delete_reply(replyNo,boardNo){
+	
+	let data = {
+		"replyNo":replyNo,
+		"boardNo":boardNo
+
+	};
+	let url="/oho/community/deleteReply?replyNo="+replyNo+"&boardNo="+boardNo;
+	$.ajax({
+		url:url,
+		contentType:"aplication/json; charset=utf-8",
+		type:"get",
+		dataType:"json",
+		success: function(replyCnt){
+			console.log("성공햇니?",replyCnt);
+			let str =`\${replyCnt}`;
+			$(`#repCnt\${boardNo}`).html((str));
+			$(`#\${replyNo}`).remove();
+		},
+		error : function(){
+			alert('error');
+		}
+		
+		})
+	
+}
+
+
+
+$(function(){
+	fn_board_list();
+
+});	
+
+//스크롤 바닥 감지
+window.onscroll = function(e) {	
+    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        if (!isLastPage) {  // 마지막 페이지가 아니면 페이지 증가
+            currentPage += 1;
+            console.log("currentPage:", currentPage);
+            fn_board_list(currentPage, "");
+        } else {
+            console.log("모든 데이터를 불러왔습니다.");
+        }
+    }
+};
+
+
+function readFile(input){
+    var reader;
+        console.log("input : ",input);
+    for(var file of input.files){
+        reader= new FileReader();
+        reader.onload = function(e){
+        	console.log(e);
+            $("#formFile").attr("src",e.target.result);
+        };
+        console.log("dddd",reader);
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+
+
+
+</script>
+<%@ include file="../footer.jsp" %>
+	<!-- Scroll Top -->
+	<a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center active">
+		<i class="bi bi-arrow-up-short"></i>
+	</a>
+	<!-- 	<i class="bi bi-arrow-up-short"></i> -->
+
+<!-- Main JS File -->
+<script src="/main/assets/js/main.js"></script>
+</body>
+</html>

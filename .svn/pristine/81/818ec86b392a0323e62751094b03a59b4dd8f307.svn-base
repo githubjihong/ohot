@@ -1,0 +1,324 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>oHoT Admin</title>
+</head>
+<body class="sidebar-mini" style="height: auto;">
+	<div class="wrapper">
+		<!-- 관리자 헤더네비바  -->
+		<%@ include file="../adminHeader.jsp"%>
+
+		<!-- 관리자 사이드바 -->
+		<%@ include file="../adminSidebar.jsp"%>
+
+		<!-- 컨텐츠-->
+		<div class="content-wrapper" style="padding: 20px;">
+			<!-- 검색 옵션 영역 -->
+			<div class="serch-option">
+				<div class="card card-primary">
+					<div class="card-header">
+						<h3 class="card-title">검색 옵션</h3>
+					</div>
+
+					<!-- /.card-header -->
+					<!-- form start -->
+					<form id="searchForm" onsubmit="return false;">
+						<!-- /.card-body -->
+						<div class="card-body">
+							<div class="row mb-4" style="margin-bottom: 0px !important">
+								<!-- 아티스트 그룹 선택 폼 그룹 -->
+								<div class="col-md-4 form-group">
+									<label for="artGroupNm">아티스트 그룹 선택</label> 
+									<select id="artGroupNm" name="artGroupNm" class="form-control select2bs4 select2-hidden-accessible"
+										style="width: 100%;" data-select2-id="17" tabindex="-1" aria-hidden="true">
+										<option value="all">전체</option>
+										<c:forEach var="artistGroupVO" items="${boardPage.content}" varStatus="stat">
+											<option value="${artistGroupVO.artGroupNm}">${artistGroupVO.artGroupNm}</option>
+										</c:forEach>
+									</select>
+								</div>
+
+								<!-- 시작일 선택 -->
+								<div class="col-md-4 form-group gap-5">
+									<label>검색 기간 시작일</label>
+									<div class="input-group date" data-target-input="nearest">
+										<input id="startDate" name="startDate" type="text" class="form-control datetimepicker-input" data-target="#startDate">
+										<div class="input-group-append" data-target="#startDate" data-toggle="datetimepicker">
+											<div class="input-group-text">
+												<i class="fa fa-calendar"></i>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 종료일 선택 -->
+								<div class="col-md-4 form-group gap-5">
+									<label>검색 기간 종료일</label>
+									<div class="input-group date" data-target-input="nearest">
+										<input id="endDate" name="endDate" type="text" class="form-control datetimepicker-input" data-target="#endDate">
+										<div class="input-group-append" data-target="#endDate" data-toggle="datetimepicker">
+											<div class="input-group-text">
+												<i class="fa fa-calendar"></i>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 여기에 추가 필터 옵션 배치 가능 -->
+								<div class="col-md-4 form-group gap-5"></div>
+							</div>
+							<!-- 검색 1행 끝 -->
+							<!-- 검색 2행 시작 -->
+							<div class="row mb-4"
+								style="margin-bottom: 0px !important; margin-top: 0px !important">
+								<!-- 데뷔 일자 선택 -->
+								<div class="col-md-4 form-group">
+									<label for="artGroupDebutYmd">데뷔 일자</label>
+									<input type="text" id="artGroupDebutYmd" name="artGroupDebutYmd" placeholder="검색어 입력" class="form-control" />
+								</div>
+
+								<!-- 등록 일자 선택 -->
+								<div class="col-md-4 form-group">
+									<label for="artGroupRegYmd">등록 일자</label> 
+									<input type="text" id="artGroupRegYmd" name="artGroupRegYmd" placeholder="검색어 입력" class="form-control" />
+								</div>
+
+								<!-- 삭제 여부 선택 -->
+								<div class="col-md-4 form-group">
+									<label for="artGroupDelYn">서비스 중단 여부</label>
+									<select id="artGroupDelYn" name="artGroupDelYn" class="form-control select2bs4" style="width: 100%;">
+										<option value="all" selected="selected">전체</option>
+										<option value="Y">중단</option>
+										<option value="N">활성화</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<!-- 검색옵션 2행 끝  -->
+
+						<!-- card-footer -->
+						<div class="card-footer d-flex justify-content-end">
+							<button type="button" class="btn btn-primary" id="btnSearch">검색</button>
+						</div>
+					</form>
+				</div>
+			</div>
+			<!-- 검색옵션 끝 -->
+
+			<div class="card card-primary">
+				<div class="card-header ">
+					<h3 class="card-title">아티스트 그룹 목록</h3>
+				</div>
+				<!-- /.card-header -->
+				<div class="card-body">
+					<div id="example2_wrapper" class="dataTables_wrapper dt-bootstrap4">
+						<div class="row">
+							<div class="col-sm-12 col-md-6"></div>
+							<div class="col-sm-12 col-md-6"></div>
+						</div>
+						<div class="row">
+							<div class="d-flex justify-content-end">
+								<a type="button" class="btn btn-primary mr-2 mb-3" href="/admin/artistGroup/artistGroupRegister">등록</a>
+							</div>	
+							<div class="col-sm-12">
+								<table id="example2"
+									class="table table-bordered table-hover dtr-inline"
+									aria-describedby="example2_info" style="text-align: center">
+									<thead>
+										<tr>
+											<th>목록 번호</th>
+											<th>아티스트 그룹명</th>
+											<th>그룹 데뷔일</th>
+											<th>그룹 등록일</th>
+											<th>서비스 중단 여부</th>
+											<th>수정</th>
+											<th>삭제</th>
+										</tr>
+									</thead>
+									<tbody>
+										
+									</tbody>
+									<tfoot>
+
+									</tfoot>
+								</table>
+
+								<div class="d-flex justify-content-center mt-3">
+									<ul class="pagination">
+										
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /.card-body -->
+			</div>
+		</div>
+	<!--
+		EL태그 정리 
+		== : eq(equal)
+		!= : ne(not equal)
+		<  : lt(less than)
+		>  : gt(greater than)
+		<= : le(less equal)
+		>= : ge(greater equal)
+	  -->
+
+	<!-- 관리자 풋터 -->
+	<%@ include file="../adminFooter.jsp"%>
+
+	</div>
+<script type="text/javascript">
+$(document).ready(function() {
+	fn_search(1);
+	
+    $('#btnSearch').on('click', function() {
+      fn_search(1);
+    });
+  });
+
+	function fn_search(page){
+		// 로딩 표시
+	    $('#example2 tbody').html('<tr><td colspan="9" class="text-center"><i class="fas fa-spinner fa-spin"></i> 검색 중...</td></tr>');
+	    
+	    // 검색 옵션 파라미터 수집
+	    const params = {
+	      currentPage : page,
+	      artGroupNm: $('#artGroupNm').val(),
+	      startDate: $('#startDate').val(),
+	      endDate: $('#endDate').val(),
+	      artGroupDebutYmd: $('#artGroupDebutYmd').val(),
+	      artGroupRegYmd: $('#artGroupRegYmd').val(),
+	      artGroupDelYn: $('#artGroupDelYn').val()
+	     
+	    };
+	    
+	    const queryString = new URLSearchParams(params).toString();
+	    
+	    fetch(`/admin/artistGroup/artistGroupListAjax?\${queryString}`,{
+	    	method : "post"
+	    }).then(resp =>{
+	    	console.log("resp : ", resp);
+	    	
+	    	resp.json().then(data=>{
+	    		console.log("회원검색리스트 : ", data);
+	    		
+	    		// 테이블 그리기
+	    		renderTable(data.content);
+	    		
+	    		// 페이징 처리
+	    		renderPagination(data);
+	    	}).catch(err =>{ 
+	    		console.log("조회 ㅇ ㅔ러 : ", err);
+				$('#example2 tbody').html('<tr><td colspan="9" class="text-center text-danger">검색 오류</td></tr>');
+			});
+		});
+	}
+	
+
+	
+	function renderTable(content){
+
+		//alert(JSON.stringify(content));
+		
+		let str = '';
+
+		if(content && content.length > 0){
+			content.forEach(artistGroupVO=>{
+				str += `
+					<tr>
+						<td>\${artistGroupVO.rnum}</td>
+						<td>\${artistGroupVO.artGroupNm}</td>
+						<td>\${artistGroupVO.artGroupDebutYmd}</td>
+						<td>\${artistGroupVO.artGroupRegYmd}</td>
+						<td>\${artistGroupVO.artGroupDelYn == 'Y' ? '중단' : '활성화'}</td>
+						<td>
+							<a href="/admin/artistGroup/artistGroupEdit?artGroupNo=${artistGroupVO.artGroupNo}"
+								class="btn btn-secondary">수정</a></td>
+						<td>
+							<button type="button" class="btn btn-danger" id="deleteArtistGroup"
+								onclick="deleteArtistGroup(\${artistGroupVO.artGroupNo})">삭제</button>
+						</td>
+				</tr>
+			`;
+			})
+		}else{
+			str += `<tr><td colspan="9" class="text-center">검색 결과가 없습니다</td></tr>`;
+		}
+		
+		alert(str);
+
+		$('#example2 tbody').html(str);
+
+	}
+
+	function renderPagination(boardPage){
+		let pageStr = '';
+	
+		const { currentPage, startPage, endPage, totalPages, blockSize } = boardPage;
+		
+		  // << 처음으로
+		  if (startPage > 1) {
+		    pageStr += `<li class="paginate_button page-item">
+		                  <a href="javascript:void(0)" onclick="fn_search(1)" class="page-link">&laquo;</a>
+		                </li>`;
+		  } else {
+		    pageStr += `<li class="paginate_button page-item disabled">
+		                  <span class="page-link">&laquo;</span>
+		                </li>`;
+		  }
+
+		  // < 이전 블록
+		  if (startPage > 1) {
+		    pageStr += `<li class="paginate_button page-item">
+		                  <a href="javascript:void(0)" onclick="fn_search(${startPage - 1})" class="page-link">&lt;</a>
+		                </li>`;
+		  } else {
+		    pageStr += `<li class="paginate_button page-item disabled">
+		                  <span class="page-link">&lt;</span>
+		                </li>`;
+		  }
+
+		  // 페이지 번호
+		  for (let pNo = startPage; pNo <= endPage; pNo++) {
+		    const activeClass = pNo === currentPage ? 'active' : '';
+		    pageStr += `<li class="paginate_button page-item ${activeClass}">
+		                  <a href="javascript:void(0)" onclick="fn_search(${pNo})" class="page-link">${pNo}</a>
+		                </li>`;
+		  }
+
+		  // > 다음 블록
+		  if (endPage < totalPages) {
+		    pageStr += `<li class="paginate_button page-item">
+		                  <a href="javascript:void(0)" onclick="fn_search(${startPage + blockSize})" class="page-link">&gt;</a>
+		                </li>`;
+		  } else {
+		    pageStr += `<li class="paginate_button page-item disabled">
+		                  <span class="page-link">&gt;</span>
+		                </li>`;
+		  }
+
+		  // >> 마지막으로
+		  if (endPage < totalPages) {
+		    pageStr += `<li class="paginate_button page-item">
+		                  <a href="javascript:void(0)" onclick="fn_search(${totalPages})" class="page-link">&raquo;</a>
+		                </li>`;
+		  } else {
+		    pageStr += `<li class="paginate_button page-item disabled">
+		                  <span class="page-link">&raquo;</span>
+		                </li>`;
+		  }
+
+		  $('#pagination').html(pageStr); // 페이지네이션을 렌더링할 위치
+		
+		
+	}
+</script>
+</body>
+</html>

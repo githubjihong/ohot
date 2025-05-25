@@ -1,0 +1,29 @@
+package com.ohot.employee.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.ohot.employee.vo.ApprovedConcertPlanVO;
+import com.ohot.employee.vo.AtrzDocVO;
+import com.ohot.employee.vo.AtrzLineVO;
+import com.ohot.employee.vo.DepartmentVO;
+
+public interface EmployeeService {
+
+	public List<DepartmentVO> treeList();
+
+	public String atrzDocInsert(AtrzDocVO atrzDocVO);
+
+	public DepartmentVO atrzDocDetail(String atrzDocNo);
+
+	public List<DepartmentVO> atrzRefDetail(String atrzDocNo);
+
+	public List<DepartmentVO> atrzLineDetail(String atrzDocNo);
+
+	public ApprovedConcertPlanVO aprrovedConcertPlanDetail(String atrzDocNo);
+
+	public List<DepartmentVO> atrzAllList(AtrzLineVO atrzLineVO);
+
+	public int atrzLineUpdate(AtrzLineVO atrzLineVO);
+
+}

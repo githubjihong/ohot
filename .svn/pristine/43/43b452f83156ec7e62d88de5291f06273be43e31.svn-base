@@ -1,0 +1,99 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>oHot Media</title>
+<link rel="styleSheet" href="/css/media-live/media-live.css">
+
+</head>
+<body>
+<!-- header.jsp 시작 -->
+<%@ include file="../header.jsp" %>
+<!-- 커뮤니티페이지 네비, 탭-->
+<div class="border border-danger">
+<header class="d-flex justify-content-center py-1">
+<ul class="nav nav-pills nav-fill gap-c1">
+   <li class="nav-item">
+    <a class="nav-link" href="#">Fan</a>
+  </li>
+   <li class="nav-item">
+    <a class="nav-link" href="#">Artist</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" aria-current="page" href="${pageContext.request.contextPath}/oho/community/media?artGroupNo=${param.artGroupNo}">Media</a>
+  </li>
+   <li class="nav-item">
+    <a class="nav-link" href="${pageContext.request.contextPath}/oho/community/live?artGroupNo=${param.artGroupNo}">Live</a>
+  </li>
+    <li class="nav-item">
+    <a class="nav-link" href="#">Shop</a>
+  </li>
+</ul>
+</header>
+</div>
+<!--네비탭 끝 -->
+<!-- 본문 영역  -->
+<!-- 넘어오는 객체들 -->
+<sec:authorize access="isAuthenticated()">
+	<sec:authentication property="principal.usersVO" var="usersVO" />
+</sec:authorize>
+<!-- SELECT  U.USER_NO, U.USER_MAIL, USER_PSWD, A.AUTH_NM -->
+<!-- ${usersVO} -->
+<!-- 본문 영역 -->
+
+<div class="container-fruid px-6" style="height:1000px;">
+ <div class="row py-4" style="height:100%;">
+	<div class="col col-md-9">
+		 <c:choose>
+       	 <%-- 유튜브 영상인 경우 --%>
+        <c:when test="${mediaPostVO.mediaMebershipYn eq 'N'}">
+          <iframe 
+            width="100%" 
+            height="70%" 
+            src="https://www.youtube.com/embed/${mediaPostVO.mediaVideoUrl}?si=EXH1kqCMF0PLhEeh" 
+            title="YouTube video player" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            referrerpolicy="strict-origin-when-cross-origin" 
+            allowfullscreen>
+          </iframe>
+        </c:when>
+       	 <%-- 로컬 동영상 파일인 경우 --%>
+        <c:otherwise>
+          <video width="100%" height="70%" controls>
+            <source src="/upload${mediaPostVO.mediaVideoUrl}" type="video/mp4">
+            멤버쉽 영상 영역
+          </video>
+        </c:otherwise>
+      </c:choose>
+        <div style="height: 7%; display: flex; align-items: self-end;">
+        	<h2>${mediaPostVO.mediaPostTitle}</h2>
+        </div>
+		<div class="border-bottom" style="border-bottom-width:3px !important; height: 7%;display: flex; align-items: center;">
+			<img src="/upload${mediaPostVO.fileLogoSaveLocate}" alt="아티스트 프로필" class="rounded-circle me-3" style="width: 50px; height: 50px; display: inline-block;">
+			<div class="col col-md-12">
+				<h4>${mediaPostVO.artistGroupVO.artGroupNm}</h4>
+				<fmt:formatDate value="${mediaPostVO.mediaRegDt}" pattern="yyyy.MM.dd"/>
+			</div>
+		</div>
+		<div style="height: 15%; padding-top: 20px">
+			<pre>${mediaPostVO.mediaPostCn}</pre>
+		</div>
+	</div>
+	<!-- 댓글 창 영역  -->
+	<div class="col col-md-3" style="height:70%; background-color: green;position: sticky; top: 130px;"></div>
+  </div>
+</div>
+
+<!-- 본문 영역 끝 -->
+<!-- Scroll Top -->
+	<a href="#" id="scroll-top"
+		class="scroll-top d-flex align-items-center justify-content-center active">
+		<i class="bi bi-arrow-up-short"></i>
+	</a>
+	<!-- 	<i class="bi bi-arrow-up-short"></i> -->
+<script src="/main/assets/js/main.js"></script>
+<%@ include file="../footer.jsp" %>
+</body>
+</html>

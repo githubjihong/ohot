@@ -1,0 +1,520 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css" />
+  <script src="/adminlte/dist/js/adminlte.min.js"></script>
+
+  <style>
+    .container { background: none; }
+    .button {
+      font-size: 50px;
+      position: relative;
+      right: 80px;
+      top: 0px;
+      width: 40px;
+      height: 40px;
+      z-index: 99;
+      transition: 0.8s ease;
+      background: none;
+      border: none;
+    }
+
+    .header { width: 90%; height: 10%; display: inline-block; }
+    .wrapper { width: 100vw; height: 10%; display: inline-block; }
+    .left  {
+	  vertical-align: top;
+	  display: inline-block;
+	  width: 40%;
+	  height: 250px;
+	  margin-left: 5%;
+	  margin-top: 1%; /* ← 예: 4% → 1%로 줄이면 myChart가 위로 올라감 */
+	}
+	.right {
+	  vertical-align: top;
+	  display: inline-block;
+	  width: 40%;
+	  height: 250px;
+	  margin-left: -1%;
+	  margin-top: 2%; /* ← 예: 4% → 1%로 줄이면 myChart가 위로 올라감 */
+	}
+	.left2{
+	  vertical-align: top;
+	  display: inline-block;
+	  width: 40%;
+	  height: 250px;
+	  margin-left: 5%;
+	  margin-top: 6%; /* ← 예: 4% → 1%로 줄이면 myChart가 위로 올라감 */
+	
+	}
+    .right2 {
+      vertical-align: top;
+      display: inline-block;
+      width:350px;
+      height:350px;
+      margin-left: -3%;
+      margin-top: -1%;
+    }
+    .right3 {
+      vertical-align: top;
+      display: inline-block;
+      width:350px;
+      height:350px;
+      margin-left: 67%;
+      margin-top: -20%;
+    }
+
+    .sidebarTemp { height: 100%; }
+    .content {
+      padding: 100px 20px 0 40px;
+      position: relative;
+      width: 100%;
+    }
+
+    .menubar .submenu { display: none; }
+    .menubar { position: relative; }
+
+    .nav-2 {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+    }
+
+    .word {
+      font-size: 25px;
+      font-family: 'Cafe24Ssurround';
+      color: black;
+      cursor: pointer;
+    }
+
+    .keyword_rank, .keyword_rank2 {
+      display: inline-block;
+      font-size: 25px;
+    }
+
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    .rank_list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .rank_list li {
+      background-color: #fff;
+      margin-bottom: 10px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+    }
+
+    .rank_list li:hover {
+      background-color: #f0f0f0;
+    }
+
+    .rank_title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    /* 새로운 콘텐츠 영역 스타일 */
+    .new-widgets-container {
+      display: flex;
+      gap: 20px; /* 박스 사이 간격 */
+    }
+
+    .new-widget {
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      flex: 1; /* 동일한 너비로 분할 */
+    }
+
+    .new-widget-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .new-widget-content {
+      color: #666;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+  <%@ include file="../adminHeader.jsp"%>
+
+  <div class="sidebarTemp">
+    <%@ include file="../adminSidebar.jsp"%>
+  </div>
+
+  <div class="content-wrapper">
+    <div class="row">
+      <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+          <div class="inner">
+            <h3>${FollowersTotal[0].totalCnt3}</h3>
+            <p>이번달 굿즈 총 판매매출</p>
+          </div>
+          <div class="icon"><i class="ion ion-bag"></i></div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+          <div class="inner">
+            <h3>${SubscriptionTotal[0].totalCnt}</h3>
+            <p>이번달 누적구독수</p>
+          </div>
+          <div class="icon"><i class="ion ion-stats-bars"></i></div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+          <div class="inner">
+            <h3>${memberTotal[0].totalCnt2}</h3>
+            <p>이번달 총 가입자수</p>
+          </div>
+          <div class="icon"><i class="ion ion-person-add"></i></div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+          <div class="inner">
+            <h3>${goodTotal[0].totalCnt4}</h3>
+            <p>이번달 누적 예매수</p>
+          </div>
+          <div class="icon"><i class="ion ion-pie-graph"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrapper">
+      <div class="left">
+        <div class="row">
+          <div class="col-sm-4 col-md-2">
+            <h4 class="text-center">이번달</h4>
+            <div class="color-palette-set">
+              <div class="bg-black color-palette"><span>판매수</span></div>
+              <div class="bg-black disabled color-palette"><span>${goodcnt[0].goodCnt2}</span></div>
+            </div>
+          </div>
+          <div class="col-sm-4 col-md-2">
+            <h4 class="text-center">이번달</h4>
+            <div class="color-palette-set">
+              <div class="bg-gray-dark color-palette"><span>총매출</span></div>
+              <div class="bg-gray-dark disabled color-palette"><span>${FollowersTotal[0].totalCnt3}</span></div>
+            </div>
+          </div>
+          
+        </div>
+        <canvas id="myChart"></canvas>
+      </div>
+
+      <!-- 사진 -->
+
+      <div class="right">
+        <h4>이번달 DM구독 인기아이돌 top5</h4>
+        <div class="card">
+            <div class="card-tools">
+ 			</div>
+         </div>
+
+          
+          <div class="card-body p-0">
+			  <ul class="users-list clearfix" id="topArtists">
+			    <c:forEach var="artist" items="${topArtists}">
+			      <li>
+			        <img src="${artist.fileSaveLocate}${artist.fileSaveName}" alt="${artist.artistName}" style="width:80px; height:80px; object-fit:cover;" />
+			        <p class="users-list-name">${artist.artistName}</p>
+			      </li>
+			    </c:forEach>
+			  </ul>
+			</div>
+          <div class="card-footer text-center">
+          </div>
+        </div>
+      </div>
+      <!-- 사진 끝 -->
+
+      <div class="wrapper">
+        <div class="left2">
+          <h4>이번달 신고현황</h4>
+          <canvas id="myChart2"></canvas>
+        </div>
+        <div class="right2">
+          <h4>이번달 가입/구독 현황</h4>
+          <canvas id="myChart3"></canvas>
+        </div>
+        <div class="right3">
+          <h4>이번달 예매통계</h4>
+          <canvas id="myChart4"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <%@ include file="../adminFooter.jsp"%>
+</body>
+
+<script>
+
+const obj_chart1 = document.getElementById('myChart');
+const obj_chart2 = document.getElementById('myChart2');
+const obj_chart3 = document.getElementById('myChart3');
+const obj_chart4 = document.getElementById('myChart4');
+
+$(document).ready(function() {
+	//아이돌 인기top6사진 업로드
+	$.ajax({
+	    url: "/admin/stats/idolPost",
+	    type: "post",
+	    dataType: "json",
+	    success: function(resp) {
+	      console.log("resp : ", resp);
+	      
+	      let str = "";
+	      
+	      $.each(resp, function(idx, artist){
+	    	  str += `<li style="width:20%;">
+	      		<img src="/upload\${artist.fileSaveLocate}" alt="\${artist.artistName}" style="width:40px; height:40px; object-fit:cover;" />
+		        <p class="users-list-name">\${artist.artistName}</p>
+		      </li>`;
+	      });
+	      
+	      $("#topArtists").html(str);
+	    }
+	  });
+	
+  $.ajax({
+    url: "/admin/stats/listAjax",
+    type: "post",
+    dataType: "json",
+    success: function(resp) {
+      getStats1(resp);
+    }
+  });
+
+  $.ajax({
+    url: "/admin/stats/listBarAjax",
+    type: "post",
+    dataType: "json",
+    success: function(resp) {
+      getStats2(resp);
+    }
+  });
+
+	//커뮤니티 통계 티켓 굿즈 디엠 멤버쉽
+//   $.ajax({
+//     url: "/admin/stats/listdoughnutAjax",
+//     type: "post",
+//     dataType: "json",
+//     success: function(resp) {
+//       getStats3(resp);
+//     }
+//   });
+	//예매통계
+  $.ajax({
+	    url: "/admin/stats/listdoughnutAjax2",
+	    type: "post",
+	    dataType: "json",
+	    success: function(resp) {
+	      getStats4(resp);
+	    }
+	});
+	
+	//이번달 티켓 굿즈 디엠 멤버십 현황(myChart3 => const obj_chart3 = document.getElementById('myChart3'))
+  $.ajax({
+	    url: "/admin/stats/listdoughnutAjax",
+	    type: "post",
+	    dataType: "json",
+	    success: function(resp) {
+	    	console.log("이번달 티켓 굿즈 디엠 멤버십 현황->resp : ", resp);
+	    	
+	    	//resp : listdoughnutAjax
+	    	getStats3(resp);
+	    }
+	});
+	
+	
+});
+
+function getStats1(statsList) {
+  let labels = [], data = [];
+  $.each(statsList, function(idx, stats) {
+    labels.push(stats.saleDate);
+    data.push(stats.totalSale);
+  });
+
+  new Chart(obj_chart1, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '# of Votes',
+        data: data,
+        borderWidth: 3
+      }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+}
+
+function getStats2(listBarAjax) {
+  let labels = [], data = [];
+  $.each(listBarAjax, function(idx, stats2) {
+    labels.push(stats2.reportRegDt);
+    data.push(stats2.cnt2);
+  });
+
+  new Chart(obj_chart2, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '# of Votes',
+        data: data,
+        borderWidth: 3
+      }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+}
+
+function getStats2(listBarAjax) {
+  let labels = [], data = [];
+  $.each(listBarAjax, function(idx, stats2) {
+    labels.push(stats2.reportRegDt);
+    data.push(stats2.cnt2);
+  });
+
+  new Chart(obj_chart2, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '# of Votes',
+        data: data,
+        borderWidth: 3
+      }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+}
+
+//예매통계
+function getStats4(listdoughnutAjax2) {
+  let labels = [], data = [];
+  $.each(listdoughnutAjax2, function(idx, stats4) {
+    labels.push(stats4.availableSeats);
+    data.push(stats4.totalCnt5);
+  });
+
+  new Chart(obj_chart4, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '# of Votes',
+        data: data,
+        borderWidth: 3
+      }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+}
+
+
+let chartInstance3 = null; // 차트 인스턴스를 저장할 변수
+
+// 이번달 티켓 굿즈 디엠 멤버십 현황
+function getStats3(listdoughnutAjax) {
+    if (!listdoughnutAjax || listdoughnutAjax.length === 0) {
+        console.warn("데이터가 비어있습니다.");
+        return;
+    }
+
+    let labels = ['신규 회원', 'DM 구독 시작', '멤버십 시작', '커뮤니티 가입'];
+    let data = [];
+
+    // 단일 객체에서 각 값 추출
+    const stats3 = listdoughnutAjax;  // 첫 번째 객체만 사용
+    console.log("getStats3->stats3 : ", stats3); // stats3 객체 로그
+
+    // 각 항목에 대한 값이 없으면 0을 사용
+    const totalCnts1 = stats3.totalCnts1 || 0;  // 신규 회원
+    const totalCnts2 = stats3.totalCnts2 || 0;  // DM 구독 시작
+    const totalCnts3 = stats3.totalCnts3 || 0;  // 멤버십 시작
+    const totalCnts4 = stats3.totalCnts4 || 0;  // 커뮤니티 가입
+    
+    console.log("totalCnts1 : ", totalCnts1);
+    console.log("totalCnts2: ", totalCnts2);
+    console.log("totalCnts3 : ", totalCnts3);
+    console.log("totalCnts4 : ", totalCnts4);
+
+    // 차트에 반영할 데이터 배열
+    data.push(totalCnts1);
+    data.push(totalCnts2);
+    data.push(totalCnts3);
+    data.push(totalCnts4);
+
+    console.log("받은 데이터:", listdoughnutAjax); // 데이터 로그
+    console.log("labels:", labels); // 라벨 확인
+    console.log("data:", data); // 데이터 확인
+
+    // 이전 차트 인스턴스가 있으면 파괴
+    if (chartInstance3) {
+        chartInstance3.destroy();
+    }
+
+    // 새로운 차트 인스턴스 생성
+    chartInstance3 = new Chart(obj_chart3, {
+        type: 'polarArea',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                label: '이번 달 유입 수',
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)', // 신규 회원   
+                    'rgba(54, 162, 235, 0.6)', // DM 구독 시작
+                    'rgba(255, 206, 86, 0.6)', // 멤버십 시작  
+                    'rgba(75, 192, 192, 0.6)'  // 커뮤니티 가입 
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right'
+                },
+                title: {
+                    display: true,
+                    text: '이번 달 유입 수'
+                }
+            }
+        }
+    });
+}
+</script>
+
+</html>

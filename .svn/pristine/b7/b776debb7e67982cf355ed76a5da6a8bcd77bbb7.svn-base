@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohot.admin.mapper.AdminCommunity-Mapper">
+
+<select id="getTotalPost" resultType="int">
+    SELECT COUNT(BOARD_NO)
+    FROM COMMUNITY_POST
+</select>
+
+</mapper>

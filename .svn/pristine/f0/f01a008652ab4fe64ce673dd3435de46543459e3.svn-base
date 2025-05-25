@@ -1,0 +1,87 @@
+package com.ohot.home.groupProfile.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.ohot.home.groupProfile.service.GroupProfileService;
+import com.ohot.home.media.controller.MediaController;
+import com.ohot.home.media.service.impl.MediaLiveBoardServiceImpl;
+import com.ohot.home.media.vo.MediaPostVO;
+import com.ohot.service.MemberService;
+import com.ohot.shop.vo.GoodsVO;
+import com.ohot.vo.ArtistGroupVO;
+import com.ohot.vo.ArtistVO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/oho")
+@Controller
+public class GroupProfileController {
+	
+	
+	@Autowired
+	GroupProfileService groupProfileService;
+	
+	@Autowired
+	MemberService memberService;
+	
+	@Autowired
+	MediaController mediaController;
+	
+	@GetMapping("/groupProfile")
+	public String groupProfile(ArtistGroupVO artistGroupVO
+								, Model model
+			) {
+		log.info("groupProfile -> artistGroupVO : " + artistGroupVO);
+		
+		int artGroupNo = artistGroupVO.getArtGroupNo();
+		log.info("groupProfile -> artGroupNo : " + artGroupNo);
+		
+		Map<String, Object> medialMap = new HashMap<>();
+		medialMap.put("artGroupNo", artGroupNo);
+		medialMap.put("mediaDelYn", "N");
+		
+		Map<String, Object> livelMap = new HashMap<>();
+		livelMap.put("artGroupNo", artGroupNo);
+		livelMap.put("mediaDelYn", "N");
+		livelMap.put("mediaMebershipYn", "L");
+		
+		// 그룹 정보 가져오기
+		artistGroupVO = this.groupProfileService.getArtistGroup(artGroupNo);
+		// 아티스트 정보 가져오기
+		List<ArtistVO> artistList = this.groupProfileService.getArtistList(artGroupNo);
+		// 굿즈 정보 가져오기
+		List<GoodsVO> goodsList = this.groupProfileService.getGoodsList(artGroupNo);
+		
+		log.info("그룹 정보 출력 : " + artistGroupVO);
+		log.info("멤버 리스트 출력 : " + artistList);
+		log.info("굿즈 리스트 출력 : " + goodsList);
+		// 미디어 정보 가져오기
+		List<MediaPostVO> mediaList = this.groupProfileService.getMediaList(medialMap);
+		List<MediaPostVO> liveList = this.groupProfileService.getLiveList(livelMap);
+		
+		// MediaPostVO -> thumbNailPath 값 저장
+		mediaController.setThumbNailPath(mediaList);
+		mediaController.setThumbNailPath(liveList);
+		
+		log.info("미디어 리스트 출력 : ", mediaList);
+		log.info("라이브 리스트 출력 : ", liveList);
+		
+		model.addAttribute("artistGroupVO", artistGroupVO);
+		model.addAttribute("artistList", artistList);
+		model.addAttribute("goodsList", goodsList);
+		model.addAttribute("mediaList", mediaList);
+		model.addAttribute("liveList", liveList);
+		
+		return "community/groupProfile";
+	}
+	
+}

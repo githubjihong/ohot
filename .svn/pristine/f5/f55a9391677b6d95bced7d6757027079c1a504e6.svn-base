@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohot.mapper.ArtistGroupMapper">
+	
+	<resultMap type="com.ohot.vo.ArtistGroupVO" id="artistGroupMap">
+		<result property="rnum" column="RNUM"/>
+		<result property="artGroupNo" column="ART_GROUP_NO"/>
+		<result property="artGroupDebutYmd" column="ART_GROUP_DEBUT_YMD"/>
+		<result property="artGroupNm" column="ART_GROUP_NM"/>
+		<result property="artGroupExpln" column="ART_GROUP_EXPLN"/>
+		<result property="artGroupRegYmd" column="ART_GROUP_REG_YMD"/>
+		<result property="artGroupDelYn" column="ART_GROUP_DEL_YN"/>
+		<result property="fileGroupNo" column="FILE_GROUP_NO"/>
+		<association property="fileGroupVO" resultMap="fileGroupMap"></association>
+	</resultMap>
+	
+	<resultMap type="com.ohot.vo.FileGroupVO" id="fileGroupMap">
+		<result property="fileGroupNo" column="FILE_GROUP_NO"/>
+		<result property="fileRegdate" column="FILE_REGDATE"/>
+		<collection property="fileDetailVOList" resultMap="fileDetailMap"></collection>
+	</resultMap>
+	
+	<resultMap type="com.ohot.vo.FileDetailVO" id="fileDetailMap">
+		<result property="fileSn" column="FILE_SN"/>
+		<result property="fileGroupNo" column="FILE_GROUP_NO"/>
+		<result property="fileOriginalName" column="FILE_ORIGINAL_NAME"/>
+		<result property="fileSaveName" column="FILE_SAVE_NAME"/>
+		<result property="fileSaveLocate" column="FILE_SAVE_LOCATE"/>
+		<result property="fileSize" column="FILE_SIZE"/>
+		<result property="fileExt" column="FILE_EXT"/>
+		<result property="fileMime" column="FILE_MIME"/>
+		<result property="fileFancysize" column="FILE_FANCYSIZE"/>
+		<result property="fileSaveDate" column="FILE_SAVE_DATE"/>
+		<result property="fileDowncount" column="FILE_DOWNCOUNT"/>
+	</resultMap>
+
+	<!-- 
+	RRNUM : 페이지네이션 전용 행번호
+	RNUM : 뷰의 행번호
+	 -->
+	<select id="artistGroupList" parameterType="hashMap" resultType="com.ohot.vo.ArtistGroupVO">
+		SELECT S.*
+		FROM
+		(
+			SELECT ROW_NUMBER() OVER(ORDER BY T.RNUM DESC) RRNUM, T.*
+			FROM
+			(
+			    SELECT ROW_NUMBER() OVER(ORDER BY ART_GROUP_NO ASC) AS RNUM, ART_GROUP_NO, ART_GROUP_DEBUT_YMD, ART_GROUP_NM, ART_GROUP_EXPLN
+					, REGEXP_REPLACE(ART_GROUP_REG_YMD, '(.{4})(.{2})(.{2})', '\1-\2-\3') AS ART_GROUP_REG_YMD
+					, ART_GROUP_DEL_YN, FILE_GROUP_NO
+				FROM ARTIST_GROUP
+				WHERE 1 = 1
+				AND   ART_GROUP_DEL_YN = 'N'
+				<include refid="where"></include>
+			)T
+		 )S
+		WHERE S.RRNUM BETWEEN (#{currentPage} * #{size}) - (#{size} - 1) AND (#{currentPage} * #{size})
+	</select>
+		
+	<select id="artistGroupDetail" parameterType="com.ohot.vo.ArtistGroupVO" resultMap="artistGroupMap">
+	      SELECT AG.ART_GROUP_NO, AG.ART_GROUP_DEBUT_YMD, AG.ART_GROUP_NM, AG.ART_GROUP_EXPLN
+	            , REGEXP_REPLACE(AG.ART_GROUP_REG_YMD, '(.{4})(.{2})(.{2})', '\1-\2-\3') AS ART_GROUP_REG_YMD
+	            , AG.ART_GROUP_DEL_YN, FG.FILE_GROUP_NO, FG.FILE_REGDATE
+	                , FD.FILE_SN, FD.FILE_ORIGINAL_NAME, FD.FILE_SAVE_NAME, FD.FILE_SAVE_LOCATE, FD.FILE_SIZE, FD.FILE_EXT
+	                , FD.FILE_MIME, FD.FILE_FANCYSIZE, FD.FILE_SAVE_DATE, FD.FILE_DOWNCOUNT
+	      FROM ARTIST_GROUP AG 
+	      LEFT OUTER JOIN FILE_GROUP FG ON(AG.FILE_GROUP_NO = FG.FILE_GROUP_NO)
+	        LEFT OUTER JOIN (
+	              SELECT FILE_SN, FILE_GROUP_NO, FILE_ORIGINAL_NAME, FILE_SAVE_NAME
+	                     , FILE_SAVE_LOCATE, FILE_SIZE, FILE_EXT, FILE_MIME, FILE_FANCYSIZE
+	                     , FILE_SAVE_DATE, FILE_DOWNCOUNT, ROW_NUMBER() OVER (PARTITION BY FILE_GROUP_NO ORDER BY FILE_SN DESC) AS RN
+	            FROM FILE_DETAIL
+	      ) FD ON FG.FILE_GROUP_NO = FD.FILE_GROUP_NO AND FD.RN = 1
+	      WHERE ART_GROUP_NO = #{artGroupNo}
+	      ORDER BY ART_GROUP_NO DESC
+	</select>
+
+	<sql id="where">
+		<if test="keyword!=null and keyword!=''">
+			AND (
+				<choose>
+					<when test="mode=='artGroupNm'">
+						ART_GROUP_NM LIKE '%' || #{keyword} || '%'
+					</when>
+					<when test="mode=='artGroupRegYmd'">
+						ART_GROUP_REG_YMD LIKE '%' || #{keyword} || '%'
+					</when>
+					<otherwise>
+						(ART_GROUP_NM LIKE '%' || #{keyword} || '%' OR ART_GROUP_REG_YMD LIKE '%' || #{keyword} || '%')
+					</otherwise>
+				</choose>
+			)
+		</if>
+	</sql>
+	
+	<insert id="artistGroupInsert" parameterType="com.ohot.vo.ArtistGroupVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="artGroupNo">
+			SELECT NVL(MAX(ART_GROUP_NO),0)+1 FROM ARTIST_GROUP
+		</selectKey>
+		INSERT INTO ARTIST_GROUP(ART_GROUP_NO, ART_GROUP_DEBUT_YMD, ART_GROUP_NM, ART_GROUP_EXPLN, ART_GROUP_REG_YMD, ART_GROUP_DEL_YN, FILE_GROUP_NO)
+		VALUES ( #{artGroupNo}, #{artGroupDebutYmd}, #{artGroupNm}, #{artGroupExpln}, TO_CHAR(SYSDATE,'YYYYMMDD'), 'N', #{fileGroupNo})
+	</insert>
+	
+	<update id="artistGroupUpdate" parameterType="com.ohot.vo.ArtistGroupVO">
+		UPDATE ARTIST_GROUP
+		SET ART_GROUP_DEBUT_YMD=#{artGroupDebutYmd}, ART_GROUP_NM=#{artGroupNm}, ART_GROUP_EXPLN=#{artGroupExpln}
+			<if test="fileGroupNo!=null and fileGroupNo!=''">
+			, FILE_GROUP_NO = #{fileGroupNo}
+			</if>
+		WHERE ART_GROUP_NO = #{artGroupNo}
+	</update>
+	
+	<update id="artistGroupDelete" parameterType="com.ohot.vo.ArtistGroupVO">
+		UPDATE ARTIST_GROUP
+		SET ART_GROUP_DEL_YN = 'Y'
+		WHERE ART_GROUP_NO = #{artGroupNo}
+	</update>
+	
+	<select id="getTotalArtistGroup" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM ARTIST_GROUP
+		WHERE  1 = 1 
+		AND   ART_GROUP_DEL_YN = 'N'
+		<include refid="where"></include>
+	</select>
+	
+	
+	
+	<!-- 홈 사용 시작  -->
+	
+	<select id="homeArtistGroupList" resultMap="artistGroupMap">
+		SELECT AG.ART_GROUP_NO, AG.ART_GROUP_DEBUT_YMD, AG.ART_GROUP_NM, AG.ART_GROUP_EXPLN
+		    , REGEXP_REPLACE(AG.ART_GROUP_REG_YMD, '(.{4})(.{2})(.{2})', '\1-\2-\3') AS ART_GROUP_REG_YMD
+		    , AG.ART_GROUP_DEL_YN, FG.FILE_GROUP_NO, FG.FILE_REGDATE
+		    , FD.FILE_SN, FD.FILE_ORIGINAL_NAME, FD.FILE_SAVE_NAME, FD.FILE_SAVE_LOCATE, FD.FILE_SIZE, FD.FILE_EXT
+		    , FD.FILE_MIME, FD.FILE_FANCYSIZE, FD.FILE_SAVE_DATE, FD.FILE_DOWNCOUNT
+		FROM ARTIST_GROUP AG 
+		LEFT OUTER JOIN FILE_GROUP FG ON(AG.FILE_GROUP_NO = FG.FILE_GROUP_NO)
+		LEFT OUTER JOIN (
+		  SELECT FILE_SN, FILE_GROUP_NO, FILE_ORIGINAL_NAME, FILE_SAVE_NAME
+		         , FILE_SAVE_LOCATE, FILE_SIZE, FILE_EXT, FILE_MIME, FILE_FANCYSIZE
+		         , FILE_SAVE_DATE, FILE_DOWNCOUNT, ROW_NUMBER() OVER (PARTITION BY FILE_GROUP_NO ORDER BY FILE_SN DESC) AS RN
+		FROM FILE_DETAIL
+		) FD ON FG.FILE_GROUP_NO = FD.FILE_GROUP_NO AND FD.RN = 1
+		ORDER BY ART_GROUP_NO DESC
+	</select>
+	
+	<!-- 홈 사용 끝 -->
+</mapper>

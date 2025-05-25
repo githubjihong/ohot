@@ -1,0 +1,20 @@
+package com.ohot.shop.vo;
+
+import java.util.Date;
+import java.util.List;
+
+import lombok.Data;
+
+@Data
+public class OrdersVO {
+
+	private int orderNo;
+	private long memNo;
+	private int gramt;
+	private String stlmYn;
+	private Date stlmDt;
+	private int shippingInfoNo;
+	
+	//Orders : OrdersDetails = 1:N
+	List<OrdersDetailsVO> ordersDetailsVOList;
+}

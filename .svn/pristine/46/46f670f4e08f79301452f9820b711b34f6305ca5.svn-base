@@ -1,0 +1,31 @@
+package com.ohot.admin.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+@RequestMapping("/admin")
+public class AdminHomeController {
+
+	@GetMapping("/home")
+	public String adminHome(Model model) {
+		
+		log.info("어드민 홈페이지 진입");
+		
+		//Model.addAttribute("contentPage" , "메인컨텐츠에 노출될 페이지");
+
+		/*
+		 * 일단 어드민 메인페이지 아티스트 리스트 페이지로 넘겨놨습니다.
+		 */
+		//model.addAttribute("contentPage", "artist/artistList.jsp");
+		
+		return "admin/adminHome";
+	}
+
+}

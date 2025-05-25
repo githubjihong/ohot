@@ -1,0 +1,5 @@
+package com.ohot.home.dm.service;
+
+public interface DmService {
+
+}

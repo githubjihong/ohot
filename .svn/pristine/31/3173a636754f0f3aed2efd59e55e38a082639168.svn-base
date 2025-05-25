@@ -1,0 +1,12 @@
+package com.ohot.home.media.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.ohot.home.media.vo.MediaPostVO;
+
+@Mapper
+public interface MediaLiveBoardMapper {
+	public List<MediaPostVO> getMediaList();
+}

@@ -1,0 +1,23 @@
+package com.ohot.service;
+
+import java.util.List;
+
+import com.ohot.vo.StatsVO;
+
+public interface StatsService {
+
+	public List<StatsVO> statsList(StatsVO statsVO);
+
+	public List<StatsVO> listBarAjax(StatsVO statsVO);
+
+	public List<StatsVO> listdoughnutAjax(StatsVO statsVO);
+
+	public List<StatsVO> SubscriptionTotal(StatsVO statsVO);
+
+	public List<StatsVO> SubscriptionTotal2(StatsVO statsVO);
+
+	public List<StatsVO> SubscriptionTotal3(StatsVO statsVO);
+
+	public List<StatsVO> SubscriptionTotal4(StatsVO statsVO);
+
+}

@@ -1,0 +1,11 @@
+package com.ohot.employee.service;
+
+import java.util.List;
+
+import com.ohot.employee.vo.DepartmentVO;
+
+public interface EmployeeService {
+
+	public List<DepartmentVO> treeList();
+
+}

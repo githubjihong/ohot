@@ -1,0 +1,101 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="/shop/main.css" />
+<title>Insert title here</title>
+</head>
+<body>
+<!-- wrapper 시작 -->
+  <div class="wrapper">
+    <%@ include file="../../shopHeader.jsp" %>
+    
+    <!-- ✅ content 시작 -->
+    <div class="content">
+      <div class="d-flex justify-content-center">
+        <div class="col-8">
+          <h3 class="mt-5">배송주소</h3>
+        </div>
+      </div>
+        
+      <div class="container">
+	    <div class="row">
+          <div class="card card-container">	
+            <!-- card body --> 
+            <div class="card-body card-body-container">
+              <div class="col-2 text-start">
+                <h5 class="card-title card-title-container"></h5>
+                <h5 class="card-title card-title-container"></h5>
+              </div>
+              
+              <div class="col-10 text-end">
+                <h5 class="card-title card-title-right">
+                <!-- 주문상품이 단건일경우 /다 건일경우 처리 -->
+                </h5>
+              </div>
+            
+            
+              <div class="card card-container-bottom-border p-2">
+                <div class="row g-0">
+                  <div class="col-10">
+                    <div class="card-body p-2">
+                      <h5 class="card-title mb-1"></h5>
+                      <p class="card-text mb-0"></p>
+                      <p class="card-text mb-0"></p>
+                      <span id="amount" name="ddd"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            
+              <!-- 총합계 영역 -->
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="fw-bold">총 상품 금액</span>
+                <span class="text-end"><!-- Button trigger modal -->
+				<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+				  Launch demo modal
+				</button>등록</span>
+              </div>	
+            </div> <!-- 주문 상품 끝 -->
+          </div>
+	    </div>
+      </div>
+    </div>
+    
+    <!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h1 class="modal-title fs-5" id="exampleModalLabel">배송 주소 등록</h1>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	      </div>
+	      <div class="modal-body">
+	        성<p>
+	        <input type="text" value="" name="" ><p>
+	        이름<p>
+	        <input type="text" value="" name="" ><p>
+	        배송국가지역<p>
+	        <input type="text" value="" name="" ><p>
+	        배송국가지역<p>
+	        <input type="text" value="" name="" ><p>
+	        주소<p>
+	        <input type="text" value="" name="" ><p>
+	        <input type="text" value="" name="" ><p>
+	         전화번호<p>
+	        <input type="text" value="" name="" ><p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary">Save changes</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+    
+    <%@ include file="../../shopfooter.jsp" %>
+  </div> <!-- wrapper 영역 종료 -->
+</body>
+</html>

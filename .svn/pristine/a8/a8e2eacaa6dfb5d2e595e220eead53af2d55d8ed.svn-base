@@ -1,0 +1,36 @@
+package com.ohot.admin.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.ohot.vo.ReportmanageVO;
+
+@Mapper
+public interface AdminReportMapper {
+	//페이지 숫자
+	public int getTotalReport(Map<String, Object> map);
+
+
+	public ReportmanageVO reportmanageVODetail(ReportmanageVO reportmanageVO);
+
+	//신고 상세페이지(어떤 신고글에 대한 상세내용인가?)
+	public ReportmanageVO getReportById(ReportmanageVO reportmanageVO);
+
+	//신고글에 대한 관리자의 처리
+	public int reportUpdate(ReportmanageVO reportmanageVO);
+
+	//신고글 삭제
+	public int reportDelete(int reportPostNo);
+	
+	//신고글 리스트
+	public List<ReportmanageVO> reportList(Map<String, Object> map);
+
+	//신고글 검색
+	public List<ReportmanageVO> reportSearchList(Map<String, Object> map);
+
+	
+	
+
+}

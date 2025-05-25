@@ -1,0 +1,145 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title></title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link rel="stylesheet" href="/main/assets/css/card.css">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Swiper CSS -->
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+<!-- Swiper JS -->
+<script
+	src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+</head>
+<body>
+
+	<!-- header.jsp 시작 -->
+	<%@ include file="header.jsp"%>
+
+	<sec:authorize access="isAuthenticated()">
+		<sec:authentication property="principal.usersVO" var="userVO" />
+	</sec:authorize>
+	<!-- 
+	<div>
+	<p>사용자 정보 </p>
+	${userVO}
+	<p>보드 페이지</p>
+	${boardPage }
+	<p>새로운 아티스트</p>
+	${newArtistGroupList }
+	<p>디엠리스트 아티스트 정보</p>
+	${dmList }
+	<p>가입한 아티스트 정보</p>
+	${joinArtistGroupList }
+	<p>굿즈 정보</p>
+	${goodsVOList}
+	<p>굿즈가 있는 그룹명</p>
+	${artWithGoodsList}
+	</div>
+	 -->
+	
+	<c:if test="${not empty userVO}">
+		<script>
+			const userVO = {
+					userNo : ${userVO.userNo}
+			}
+		</script>
+	</c:if>
+
+	
+
+	<main class="main">
+		<!-- 
+		가입한 커뮤니티 리스트 (회원만)
+		가입한 그룹 굿즈 리스트 (회원만)
+		디엠 리스트 (회원 + 비회원)
+		새로운 아티스트를 만나보세요 (회원+비회원) (회원은 가입하지 않은 그룹만, 비회원은 전체)
+	 -->
+
+		<!-- ///// 회원 관점 시작 ///// -->
+		<sec:authorize access="isAuthenticated()">
+		
+			<!-- 나의 커뮤니티 시작 -->
+			<div id="joinArtistCard">
+			</div>
+			<!-- 나의 커뮤니티 끝 -->
+
+			<!-- 굿즈가 있는 그룹명 시작 -->
+			<div id="artWithGoodsListCard">
+			</div>
+			<!-- 굿즈가 있는 그룹명 끝 -->
+			<!-- 구독한 그룹의 굿즈샵 시작 -->
+			<div id="goodsCard">
+			</div>
+			<!-- 구독한 그룹의 굿즈샵 끝 -->
+		</sec:authorize>
+		<!-- ///// 회원 관점 끝 ///// -->
+
+		<!-- ///// 비회원 관점 시작 ///// -->
+		<!-- DM 리스트 시작-->
+		<div id="dmListCard" class="container py-5">
+		</div>
+		<!-- DM 리스트 끝-->
+
+		<!-- 새로운 아티스트 그룹 리스트 시작 -->
+		<div id="newArtistCard" class="container py-5">
+		</div>
+		<!-- 아티스트 그룹 리스트 끝 -->
+		
+		<!-- ///// 비회원 관점 끝 ///// -->
+	</main>
+
+	<script>
+	
+// 	let swiper;
+
+// 	swiper = new Swiper(".mySwiper", {
+// 		slidesPerView : 4.2,
+// 		grabCursor : true,
+// 		freeMode : true,
+// 		pagination : {
+// 			el : ".swiper-pagination",
+// 			clickable : true,
+// 		},
+// 		navigation : false,
+// 	});
+	
+	const i18n4 = {
+			more : "<spring:message code='home.more' />",
+			close : "<spring:message code='home.close' />",
+			myCommunity : "<spring:message code='home.my.community'/>",
+			dmTitle : "<spring:message code='home.dm.title'/>",
+			newArtTitle : "<spring:message code='home.new.art.title'/>",
+			merch : "<spring:message code='home.merch'/>",
+			goShop : "<spring:message code='home.go.shop'/>",
+			all : "<spring:message code='home.goods.all'/>"
+	}
+	
+	</script>
+
+	<%@ include file="footer.jsp"%>
+
+	<!-- Scroll Top -->
+	<a href="#" id="scroll-top"
+		class="scroll-top d-flex align-items-center justify-content-center active">
+		<i class="bi bi-arrow-up-short"></i>
+	</a>
+
+	<script src="/main/assets/js/main.js"></script>
+	<script src="/js/home/home.js"></script>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/@egjs/flicking@4.10.1/dist/flicking.min.js"></script>
+</body>
+</html>

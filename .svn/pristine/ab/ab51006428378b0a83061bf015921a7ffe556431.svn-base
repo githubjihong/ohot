@@ -1,0 +1,61 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+   <!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <!-- 로고클릭시 홈으로 이동 경로 넣어야함 -->
+    <a href="#" class="brand-link">
+        <span class="brand-text font-weight-light">oHoT 관리자</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <li class="nav-item">
+                    <a href="/admin/artist/artistList" class="nav-link">
+                        <i class="nav-icon fas fa-users"></i>
+                       <p>예시항목</p>
+                    </a>
+                </li>
+                <!-- 추가 메뉴 항목들 -->
+                <li class="nav-item">
+                    <a href="/admin/member/memberList?currentPage=1" class="nav-link">
+                        <i class="nav-icon fas fa-users"></i>
+                       <p>회원 관리</p>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="/admin/artistGroup/artistGroupList?currentPage=1" class="nav-link">
+                        <i class="nav-icon fas fa-users"></i>
+                       <p>그룹 관리</p>
+                    </a>
+                </li>
+                
+				<li class="nav-item">
+				     <a href="/admin/artist/artistList?currentPage=1" class="nav-link">
+				         <i class="nav-icon fas fa-users"></i>
+				        <p>아티스트 관리</p>
+				     </a>
+				 </li>
+                
+				  <li class="nav-item">
+                    <a href="/admin/media" class="nav-link">
+                        <i class="fab fa-youtube" style="margin-right: 10px"></i>
+                       <p> 미디어 관리</p>
+                    </a>
+                </li> 
+                <li class="nav-item">
+                    <a href="/admin/shop/ticketList" class="nav-link">
+                        <i class="nav-icon fas fa-users"></i>
+                       <p>공연/티켓 관리</p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>

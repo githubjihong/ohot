@@ -1,0 +1,23 @@
+package com.ohot.employee.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ohot.employee.mapper.EmployeeMapper;
+import com.ohot.employee.service.EmployeeService;
+import com.ohot.employee.vo.DepartmentVO;
+
+@Service
+public class EmployeeServiceImpl implements EmployeeService {
+
+	@Autowired
+	EmployeeMapper employeeMapper;
+	
+	@Override
+	public List<DepartmentVO> treeList() {
+		return this.employeeMapper.treeList();
+	}
+
+}

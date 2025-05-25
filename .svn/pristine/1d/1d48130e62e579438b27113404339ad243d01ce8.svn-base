@@ -1,0 +1,17 @@
+package com.ohot.admin.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.ohot.vo.ReportmanageVO;
+
+public interface AdminReportService {
+
+	public int getTotalReport(Map<String, Object> map);
+
+	public List<ReportmanageVO> ReportManageList(ReportmanageVO reportmanageVO);
+
+	public ReportmanageVO reportmanageVODetail(ReportmanageVO reportmanageVO);
+
+
+}

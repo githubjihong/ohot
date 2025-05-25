@@ -1,0 +1,181 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="/adminlte/dist/css/adminlte.min.css" />
+<link rel="stylesheet" href="/shop/shop.css" />
+<link>
+<title>Insert title here</title>
+</head>
+
+<body>
+  <%@ include file="../shopHeader.jsp" %>
+  <!-- Default box -->
+  <div class="d-flex justify-content-center m-3">
+    <div class="card card-container col-8">
+      <div class="card-body">
+        <div class="row">
+          <!-- image 영역 -->
+          <div class="col-12 col-sm-6">
+            <div class="col-12">
+              <img src="/upload${goodsVO.fileGroupVO.fileDetailVOList[0].fileSaveLocate}" class="product-image" alt="Product Image">
+            </div>
+            <div class="col-12 product-image-thumbs">
+				<c:forEach var="i" begin="0" end="${goodsVO.fileGroupVO.fileDetailVOList.size()-1}" step="1">
+		            <div class="product-image-thumb">
+		              <img src="/upload${goodsVO.fileGroupVO.fileDetailVOList[i].fileSaveLocate}" alt="Product Image">
+		            </div>
+            	</c:forEach>
+            </div>
+          </div>
+          <!-- Right 영역 -->
+          <div class="col-12 col-sm-6">
+          	<form action="/shop/ordersPost" id="goodsForm" method="post" onsubmit="return ordersPostAiax()">
+          	  <input type="hidden" name="gdsNo" value="${goodsVO.gdsNo}" />
+              <input type="hidden" name="gdsNm" value="${goodsVO.gdsNm}" />
+              <input type="hidden" name="unitPrice" value="${goodsVO.unitPrice}" />
+              <input type="hidden" name="totalPrice" value="${goodsVO.totalPrice}" />
+          
+            <!-- Artist Group 영역 -->
+            <h3 class="my-3">${goodsVO.artGroupNm}</h3>
+            <p>${goodsVO.gdsNm}</p>
+            <p>₩<fmt:formatNumber value="${goodsVO.unitPrice}" pattern="#,###" /></p>
+            <div class="container mt-3">
+              <div class="border p-3 rounded">
+                <span class="fw-bold">수량</span>
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                  <div class="input-group" style="width: 120px;">
+                    <button class="btn btn-outline-dark border-secondary disabled"  name="btn" type="button" onclick="changeQty(-1)" id="subBtn">-</button>
+                    <input type="text" class="form-control text-center border-secondary" id="quantity" name="qty" value="1">
+                    <button class="btn btn-outline-dark border-secondary" type="button" name="btn" onclick="changeQty(1)" id="addBtn">+</button>
+                  </div>
+                  <span class="fw-bold text-dark" id="totalPrice"></span>
+                </div>
+              </div>
+            </div>
+            <!-- Size 영역 -->
+            <h4 class="mt-3">Size</h4>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-default text-center">
+                <input type="radio" name="color_option" id="color_option_b1" autocomplete="off" value="">
+                <span class="text-xl">S</span>
+                <br>
+                Small
+              </label>
+            </div>
+            
+            <!-- Button 영역 -->
+            <div class="mt-4">
+              <div>
+                <button class="btn-add-to-cart" name="btn" type="button">장바구니 추가</button>
+                <button class="btn-buy-now" name="btn" type="submit">구매하기</button>
+              </div>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%@ include file="../footer.jsp" %>
+  
+</body>
+<!-- JQuery -->
+<script>
+$(function(){
+	
+	//상품 값 계산하기
+	let unitPrice = ${goodsVO.unitPrice};
+	$("#totalPrice").text("₩" + unitPrice.toLocaleString());
+	$("input[name='totalPrice']").val(unitPrice);
+	
+	// 상품 썸네일 이미지를 클릭했을 때 발생하는 이벤트
+	$('.product-image-thumb').on('click', function(){
+	    // 클릭된 썸네일 이미지 요소
+	    let $thumbnailImage = $(this).find('img');
+
+	    // 썸네일 이미지의 src 경로 가져오기
+	    let thumbnailSrc = $thumbnailImage.attr('src');
+
+	    // 대표 이미지의 src를 클릭한 썸네일 이미지의 src로 변경
+	    $('.product-image').prop('src', thumbnailSrc);
+	    
+	    // 이미 활성화된 썸네일에서 active 클래스 제거
+	    $('.product-image-thumb.active').removeClass('active');
+
+	    // 클릭된 썸네일에 active 클래스 추가
+	    $(this).addClass('active');
+	});
+})
+
+function ordersPostAiax() {
+	console.log("ordersPostAiax");
+	
+	let elems =  $("#goodsForm")[0].elements;
+	let data = [];
+	let vo = {};
+	for(let i=0; i<elems.length; i++){
+		let elem = elems[i];
+		if(elem.type=="button" || elem.type=="submit" || elem.type=="radio" ) continue;
+		//console.log("체킁:",elem,"타입" ,elem.type, "이름" ,elem.name, "값" ,elem.value);
+		vo[elem.name]=elem.value;
+	}
+	data.push(vo);
+	console.log(data);
+	
+	fetch("/shop/ordersPostAiax" , {
+		method: "post",
+		headers: {
+        	"Content-Type": "application/json;charset=UTF-8",
+      	},
+		body: JSON.stringify(data)
+	}).then( resp => {
+		resp.text().then( (rslt)=>{
+			console.log(rslt);
+			$("#goodsForm")[0].submit();
+		})
+	})
+	
+	return false;
+}
+
+//qty값이 변경되었을 때 실행되는 함수
+const changeQty = (qty) => {
+	// 현재 수량 가져오기
+	let currentQuantity = parseInt($("#quantity").val());
+
+	// 버튼 클릭에 따라 수량 변경
+	currentQuantity += qty;
+
+	// 변경된 수량을 input 필드에 반영
+	$("#quantity").val(currentQuantity);
+
+	// 수량이 1일 경우 - 감소 버튼 비활성화
+	if (currentQuantity === 1) {
+	    $("#subBtn").addClass("disabled");
+	} else {
+	    $("#subBtn").removeClass("disabled");
+	}
+	
+	// 가격 계산하기
+	let totalPrice = currentQuantity * ${goodsVO.unitPrice};
+	
+	//total 전송 값 저장하기
+	$("input[name='totalPrice']").val(totalPrice);
+	
+	// 가격을 세자리마다 쉼표 추가하여 포맷팅
+	totalPrice = totalPrice.toLocaleString();
+
+	// 가격을 화면에 반영
+	$("#totalPrice").text("₩" + totalPrice);
+	
+}
+</script> 
+
+</html>

@@ -1,0 +1,79 @@
+package com.ohot.admin.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.ohot.home.media.service.MediaLiveBoardService;
+import com.ohot.home.media.vo.MediaPostVO;
+import com.ohot.service.ArtistGroupService;
+import com.ohot.vo.ArtistGroupVO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+@RequestMapping("/admin/media")
+public class AdminMediaController {
+
+	@Autowired
+	MediaLiveBoardService mediaLiveBoardService;
+	
+	@Autowired
+	ArtistGroupService artistGroupService;
+	/*
+	    GET /admin/media - 미디어 관리 페이지
+		GET /admin/media/list - 미디어 목록 데이터 API
+		GET /admin/media/{mediaId} - 특정 미디어 상세 정보
+		POST /admin/media - 새 미디어 업로드
+		PUT /admin/media/{mediaId} - 미디어 정보 수정
+		DELETE /admin/media/{mediaId} - 미디어 삭제
+		GET /admin/media/membership - 멤버십 미디어 관리
+		GET /admin/media/banners - 배너 관리
+	 */
+	
+	@GetMapping("")
+	public String getMediaList(Model model) {
+		
+		log.info("getMediaList 호출");
+		
+		List<MediaPostVO> mediaPostListVO = mediaLiveBoardService.getMediaList();
+		log.info("getMediaList->mediaPostListVO : {}", mediaPostListVO);
+		
+		List<ArtistGroupVO> artistGroupVOList = artistGroupService.homeArtistGroupList();
+		log.info("ArtistGroupVOList:" + artistGroupVOList);
+		
+		model.addAttribute("mediaPostListVO", mediaPostListVO);
+		model.addAttribute("artistGroupVOList", artistGroupVOList);
+
+		return "/admin/media/mediaMain";
+	}
+	
+	// 게시글 등록
+	@GetMapping("/create")
+	public String getMediaPost(Model model) {
+			
+		log.info("getMediaPost 진입");
+		
+		List<ArtistGroupVO> artistGroupVOList = artistGroupService.homeArtistGroupList();
+		log.info("getMediaPost->ArtistGroupVOList:" + artistGroupVOList);
+		
+		model.addAttribute(artistGroupVOList);
+		
+		return "admin/media/mediaPostCreate";
+	}
+	
+	@PostMapping("/create")
+	public String createMediaPost() {
+		
+		return "redirect:/admin/media";
+	}
+	
+	
+	
+}

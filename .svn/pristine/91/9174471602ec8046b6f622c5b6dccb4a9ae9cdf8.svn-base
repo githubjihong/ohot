@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 매퍼interface의 풀경로명을 매퍼XML의 namespace속성의 값으로 쓰면 둘이 연결됨 -->
+<mapper namespace="com.ohot.mapper.SeqGeneratorMapper">
+	<select id="findSeqGenerator" parameterType="com.ohot.vo.SeqGeneratorVO" resultType="com.ohot.vo.SeqGeneratorVO">
+		SELECT TASK_SE_NM
+		     , CRTR_YMD
+		     , REQ_SN
+   		  FROM SEQ_GENERATOR
+		 WHERE CRTR_YMD = TO_CHAR(SYSDATE,'YYYYMMDD') AND TASK_SE_NM = #{taskSeNm}
+	</select>
+	
+	<update id="SeqGeneratorUpdate" parameterType="com.ohot.vo.SeqGeneratorVO">
+		UPDATE SEQ_GENERATOR
+		   SET REQ_SN = REQ_SN+1 
+		 WHERE CRTR_YMD = TO_CHAR(SYSDATE,'YYYYMMDD') AND TASK_SE_NM = #{taskSeNm}
+	</update>
+</mapper>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohot.home.media.mapper.MediaLiveBoardMapper">
+
+	<!-- mediaPostVO N : 1 artistGroupVO -->
+	<resultMap id="mediaPostMap" type="com.ohot.home.media.vo.MediaPostVO" >
+		<result property="mediaMebershipYn" column="MEDIA_MEBERSHIP_YN"/>
+		<result property="mediaVideoUrl" column="MEDIA_VIDEO_URL"/>
+		<result property="mediaPostNo" column="MEDIA_POST_NO"/>
+		<result property="mediaPostTitle" column="MEDIA_POST_TITLE"/>
+		<result property="mediaPostCn" column="MEDIA_POST_CN"/>
+		<result property="mediaRegDt" column="MEDIA_REG_DT"/>
+		<result property="mediaThumUrl" column="MEDIA_THUM_URL"/>
+		<result property="mediaDelYn" column="MEDIA_DEL_YN"/>
+		<result property="isbannerYn" column="ISBANNER_YN"/>
+		<result property="artGroupNo" column="ART_GROUP_NO"/>
+	
+		<association property="artistGroupVO" resultMap="artistGroupMap" ></association>
+	</resultMap>
+	
+	<resultMap type="com.ohot.vo.ArtistGroupVO" id="artistGroupMap">
+		<result property="artGroupNo" column="ART_GROUP_NO"/>
+		<result property="artGroupDebutYmd" column="ART_GROUP_DEBUT_YMD"/>
+		<result property="artGroupNm" column="ART_GROUP_NM"/>
+		<result property="artGroupExpln" column="ART_GROUP_EXPLN"/>
+		<result property="artGroupRegYmd" column="ART_GROUP_REG_YMD"/>
+		<result property="artGroupDelYn" column="ART_GROUP_DEL_YN"/>
+		<result property="fileGroupNo" column="FILE_GROUP_NO"/>
+	</resultMap>
+		
+	<!-- 미디어 포스트 내용이랑 아티스트 그룹 이름 가져옴 -->
+	<select id="getMediaList" resultMap="mediaPostMap">
+		 SELECT
+		 	   A.MEDIA_MEBERSHIP_YN,
+			   A.MEDIA_VIDEO_URL,
+			   A.MEDIA_POST_NO,
+			   A.MEDIA_POST_TITLE,
+			   A.MEDIA_POST_CN,
+			   A.MEDIA_REG_DT,
+			   A.MEDIA_THUM_URL,
+			   A.MEDIA_DEL_YN,
+			   A.ISBANNER_YN,
+			   A.ART_GROUP_NO,
+			   B.ART_GROUP_NM
+		 FROM MEDIA_POST A
+		 LEFT JOIN ARTIST_GROUP B ON A.ART_GROUP_NO = B.ART_GROUP_NO
+		 ORDER BY A.MEDIA_REG_DT DESC
+	</select>
+</mapper>

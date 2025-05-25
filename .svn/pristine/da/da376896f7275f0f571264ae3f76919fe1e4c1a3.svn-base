@@ -1,0 +1,17 @@
+package com.ohot.shop.mapper;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.ohot.shop.vo.OrdersVO;
+import com.ohot.vo.UsersVO;
+
+@Mapper
+public interface PaymentMapper {
+
+	public int ordersInsert(OrdersVO ordersVO);
+
+	public int ordersDetailInsert(OrdersVO ordersVO);
+
+	public OrdersVO getLatestOrder(UsersVO usersVO);
+	
+}

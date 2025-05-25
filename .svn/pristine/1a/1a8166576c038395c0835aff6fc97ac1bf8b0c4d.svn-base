@@ -1,0 +1,88 @@
+ @charset "UTF-8";
+  
+  /* 이하 댓글창 스타일  */
+  .comment-container {
+	 position:relative;	
+      max-width: 400px;
+      height: 70%;
+      margin: 0 auto;
+      background-color: #2e2e2e;
+      border-radius: 10px;
+      padding: 15px;
+      position: sticky;
+      top:15%;
+    }
+    .comment-header{
+        color: white;
+        margin-bottom: 1.5rem;
+    }
+    .comment-reset{
+      background-color: transparent;
+      border: none;
+      color: darkgray;
+    }
+    .comment-body{
+      margin-left: 10px;
+      margin-right: 10px; 
+      color: white;
+      overflow-y: auto;
+      padding-bottom: 60px;
+      max-height: calc(100% - 50px);
+    }
+   	.comment-info{
+   	  padding-left: 0;
+   	  padding-right: 0px;
+   	}
+    .comment-footer{
+      margin-top: 10px;
+      margin-left: 10px;
+      margin-right: 10px;
+      color: white;
+      position: absolute;
+      bottom: 3%;
+      left: 3%;
+      right: 3%;
+    }
+    
+    .comment-profile-img{
+        margin-left: 0 !important;
+        margin-right: 3%;
+        width: 40px;
+        height: 40px;
+    }
+
+    .comment-count{
+        margin-left: 0.5rem;
+    }
+    
+    .comment-nickname{
+        display: flex;
+    }
+    .comment-regdate{
+        display: flex;
+        font-size: small;
+    }
+    .comment-dropdown > .btn{
+      padding-right: 0px;
+      color: #aaa;
+    }
+    .comment-input{
+        background-color: #f6f5f4!important;
+        border: none;
+        color: white;
+    }
+    .comment-input::placeholder{
+        color: white;
+    }
+    
+    .comment-content-container{
+      padding-top:10px;
+       margin-left:10px; 
+       height: auto;
+       width: 85%;
+    }
+	  .comment-content{
+	    margin-left: 15%;
+		margin-right: 5%;
+	  }
+	  

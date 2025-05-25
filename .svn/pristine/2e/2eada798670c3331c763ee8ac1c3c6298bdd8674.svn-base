@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohot.admin.mapper.AdminReportMapper">
+	
+	<!-- 총페이지수 10개씩 -->
+	<select id="getTotalReport" parameterType="hashMap"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM MEMBER
+		WHERE 1 = 1
+		AND MEM_DEL_YN = 'N'
+	    <if test="reportPostNo != null and reportPostNo != ''">
+			AND a.report_post_no = #{reportPostNo}
+		</if>
+		
+		<if test="memNo != null and memNo != ''">
+			AND b.mem_no LIKE '%' || #{memNo} || '%'
+		</if>
+		
+		<if test="fullName != null and fullName != ''">
+			AND LOWER(b.mem_first_name || b.mem_last_name) LIKE '%' || LOWER(#{fullName}) || '%'
+		</if>
+		
+		<if test="memNicknm != null and memNicknm != ''">
+			AND b.mem_nicknm LIKE '%' || #{memNicknm} || '%'
+		</if>
+		
+		<if test="memEmail != null and memEmail != ''">
+			AND b.mem_email LIKE '%' || #{memEmail} || '%'
+		</if>
+		
+		<if test="memTelno != null and memTelno != ''">
+			AND b.mem_telno LIKE '%' || #{memTelno} || '%'
+		</if>
+		
+		<if test="memBirth != null and memBirth != ''">
+			AND b.mem_birth LIKE '%' || #{memBirth} || '%'
+		</if>
+		
+		<if test="startDate != null and startDate != ''">
+			AND TO_DATE(b.join_ymd, 'YYYY-MM-DD') <![CDATA[ >= ]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+		</if>
+		
+		<if test="endDate != null and endDate != ''">
+			AND TO_DATE(b.join_ymd, 'YYYY-MM-DD') <![CDATA[ <= ]]> TO_DATE(#{endDate}, 'YYYY-MM-DD')
+		</if>
+		
+		<if test="secsnYmd != null and secsnYmd != ''">
+			AND b.secsn_ymd LIKE '%' || #{secsnYmd} || '%'
+		</if>
+		
+		<if test="snsMemYn != null and snsMemYn != '' and snsMemYn != 'all'">
+			AND b.sns_mem_yn = #{snsMemYn}
+		</if>
+		
+		<if test="memStatSecCodeNo != null and memStatSecCodeNo != '' and memStatSecCodeNo != 'all'">
+			AND b.mem_stat_sec_code_no = #{memStatSecCodeNo}
+		</if>
+		
+		<if test="memSecCodeNo != null and memSecCodeNo != '' and memSecCodeNo != 'all'">
+			AND b.mem_sec_code_no = #{memSecCodeNo}
+		</if>
+	</select>
+
+	<!-- 신고정보 리스트 -->
+	<select id="reportmanageList"
+		resultType="com.ohot.vo.ReportmanageVO">
+
+		SELECT
+		R.REPORT_POST_NO AS reportPostNo,
+		R.REPORT_BOARD_NO AS reportBoardNo,
+		R.REPORT_TITLE AS reportTitle,
+		R.REPORT_CN AS reportCn,
+		R.REPORT_REG_DT AS reportRegDt,
+		R.REPORT_CNT AS reportCnt,
+		R.REPORT_TERMINATION AS reportTermination,
+		M.MEM_FIRST_NAME || ' ' || M.MEM_LAST_NAME AS memName,
+		R.MEM_NO AS memNo,
+		R.REPORT_DEL_YN AS reportDelYn,
+		R.CALLER_EMAIL AS callerEmail,
+		R.FILE_GROUP_NO AS fileGroupNo,
+		R.REPORT_RESULT AS reportResult,
+		R.REPORT_GUBUN AS reportGubun,
+		(SELECT E.MEM_FIRST_NAME || E.MEM_LAST_NAME FROM MEMBER E WHERE
+          E.MEM_NO = (SELECT D.MEM_NO FROM COMMUNITY_POST D WHERE D.BOARD_NO =
+          R.REPORT_BOARD_NO)) AS piMemName,
+        (SELECT E.MEM_EMAIL FROM MEMBER E WHERE E.MEM_NO = (SELECT D.MEM_NO
+          FROM COMMUNITY_POST D WHERE D.BOARD_NO = R.REPORT_BOARD_NO)) AS piMemEmail,
+        M.MEM_NO AS memNo,
+        M.MEM_NICKNM AS memNicknm,
+        M.MEM_FIRST_NAME || ' ' || M.MEM_LAST_NAME AS fullName,
+        M.MEM_NICKNM AS memNicknm,
+        M.MEM_NO AS memNo,
+		M.MEM_LAST_NAME AS memLastName,
+		M.MEM_FIRST_NAME AS memFirstName,
+		M.MEM_EMAIL AS memEmail,
+		M.MEM_TELNO AS memTelno,
+		M.MEM_BIRTH AS memBirth,
+		M.JOIN_YMD AS joinYmd,
+		M.SECSN_YMD AS secsnYmd,
+		M.MEM_ACCESS_TOKEN AS memAccessToken,
+		M.MEM_STAT_SEC_CODE_NO AS memStatSecCodeNo,
+		M.MEM_SEC_CODE_NO AS memSecCodeNo
+		FROM REPORT_BOARD_POST R
+		LEFT JOIN MEMBER M ON R.MEM_NO
+		= M.MEM_NO
+		WHERE R.REPORT_DEL_YN = 'N'
+	</select>
+
+
+	<resultMap type="com.ohot.vo.ReportmanageVO"
+		id="reportmanageMap">
+		<result property="reportPostNo" column="REPORT_POST_NO" />
+		<result property="reportBoardNo" column="REPORT_BOARD_NO" />
+		<result property="reportTitle" column="REPORT_TITLE" />
+		<result property="reportCn" column="REPORT_CN" />
+		<result property="reportRegDt" column="REPORT_REG_DT" />
+		<result property="reportChgDt" column="REPORT_CHG_DT" />
+		<result property="reportDelYn" column="REPORT_DEL_YN" />
+		<result property="memNo" column="MEM_NO" />
+		<result property="memEmail" column="MEM_EMAIL" />
+		<result property="memName" column="MEM_NAME" />
+		<result property="reportCnt" column="REPORT_CNT" />
+		<result property="reportTermination"
+			column="REPORT_TERMINATION" />
+		<result property="callerEmail" column="CALLER_EMAIL" />
+		<result property="fileGroupNo" column="FILE_GROUP_NO" />
+		<result property="reportResult" column="REPORT_RESULT" />
+		<result property="piMemName" column="PI_MEM_NAME" />
+		<result property="piMemEmail" column="PI_MEM_EMAIL" />
+		<association property="fileGroupVO"
+			resultMap="fileGroupMap"></association>
+	</resultMap>
+
+	<resultMap type="com.ohot.vo.FileGroupVO" id="fileGroupMap">
+		<result property="fileGroupNo" column="FILE_GROUP_NO" />
+		<result property="fileRegdate" column="FILE_REGDATE" />
+		<collection property="fileDetailVOList"
+			resultMap="fileDetailMap"></collection>
+	</resultMap>
+
+	<resultMap type="com.ohot.vo.FileDetailVO" id="fileDetailMap">
+		<result property="fileSn" column="FILE_SN" />
+		<result property="fileGroupNo" column="FILE_GROUP_NO" />
+		<result property="fileOriginalName" column="FILE_ORIGINAL_NAME" />
+		<result property="fileSaveName" column="FILE_SAVE_NAME" />
+		<result property="fileSaveLocate" column="FILE_SAVE_LOCATE" />
+		<result property="fileSize" column="FILE_SIZE" />
+		<result property="fileExt" column="FILE_EXT" />
+		<result property="fileMime" column="FILE_MIME" />
+		<result property="fileFancysize" column="FILE_FANCYSIZE" />
+		<result property="fileSaveDate" column="FILE_SAVE_DATE" />
+		<result property="fileDowncount" column="FILE_DOWNCOUNT" />
+	</resultMap>
+
+	<!-- 신고상세 -->
+	<select id="getReportById"
+		parameterType="com.ohot.vo.ReportmanageVO" resultMap="reportmanageMap">
+		SELECT
+		a.report_post_no
+		, a.report_board_no
+		, (SELECT E.MEM_FIRST_NAME || E.MEM_LAST_NAME FROM MEMBER E WHERE
+		  E.MEM_NO = (SELECT D.MEM_NO FROM COMMUNITY_POST D WHERE D.BOARD_NO =
+		  a.report_board_no)) PI_MEM_NAME
+		, (SELECT E.MEM_EMAIL FROM MEMBER E WHERE E.MEM_NO = (SELECT D.MEM_NO
+		FROM COMMUNITY_POST D WHERE D.BOARD_NO = a.report_board_no))
+		PI_MEM_EMAIL
+		, a.report_title
+		, a.report_cn
+		, a.report_reg_dt
+		, a.report_chg_dt
+		, a.report_del_yn
+		, a.mem_no
+		, a.report_cnt
+		, a.report_termination
+		, a.caller_email
+		, a.file_group_no
+		, b.mem_no
+		, b.mem_email
+		, b.mem_first_name || ' ' || b.mem_last_name AS MEM_NAME
+		, C.FILE_REGDATE
+		, D.FILE_SN, D.FILE_ORIGINAL_NAME, D.FILE_SAVE_NAME,
+		  D.FILE_SAVE_LOCATE, D.FILE_SIZE
+		, D.FILE_EXT, D.FILE_MIME, D.FILE_FANCYSIZE, D.FILE_SAVE_DATE,
+		  D.FILE_DOWNCOUNT
+		
+		FROM report_board_post a INNER JOIN member b ON(a.mem_no = b.mem_no)
+		LEFT OUTER JOIN FILE_GROUP C ON(A.FILE_GROUP_NO = C.FILE_GROUP_NO)
+		LEFT OUTER JOIN FILE_DETAIL D ON(C.FILE_GROUP_NO = D.FILE_GROUP_NO)
+		WHERE 1
+		= 1
+		AND report_post_no = #{reportPostNo}
+	</select>
+
+	<!-- 신고글에 대한 관리자의 처리 public int reportUpdate(ReportmanageVO reportmanageVO 
+		ReportmanageVO(reportPostNo=3, .. reportResult=002,... -->
+	<update id="reportUpdate"
+		parameterType="com.ohot.vo.ReportmanageVO">
+		UPDATE report_board_post
+		SET REPORT_RESULT =
+		#{reportResult}
+		WHERE report_post_no = #{reportPostNo}
+
+	</update>
+
+	<!-- 신고글 삭제 -->
+	<update id="reportDelete" parameterType="int">
+		UPDATE REPORT_BOARD_POST
+		SET report_del_yn = 'Y'
+		WHERE report_post_no = #{reportPostNo}
+	</update>
+
+	<!-- 신고 검색 -->
+	<select id="reportSearchList" parameterType="hashMap" resultMap="reportmanageMap">
+		    
+         SELECT
+            A.report_post_no
+            , A.report_board_no
+            , A.report_title
+            , A.report_cn
+            , A.report_reg_dt
+            , A.report_chg_dt
+            , A.report_del_yn
+            , A.mem_no
+            , A.report_cnt
+            , A.report_termination
+            , A.caller_email
+            , A.file_group_no
+            , A.report_result
+            , A.report_gubun
+            , B.mem_first_name || ' ' || b.mem_last_name AS MEM_NAME
+            , (SELECT E.MEM_FIRST_NAME || E.MEM_LAST_NAME FROM MEMBER E WHERE
+		      E.MEM_NO = (SELECT D.MEM_NO FROM COMMUNITY_POST D WHERE D.BOARD_NO =
+		      a.report_board_no)) PI_MEM_NAME
+            , (SELECT E.MEM_EMAIL FROM MEMBER E WHERE E.MEM_NO = (SELECT D.MEM_NO
+		      FROM COMMUNITY_POST D WHERE D.BOARD_NO = a.report_board_no))
+		      PI_MEM_EMAIL
+        FROM
+            report_board_post A
+            LEFT JOIN MEMBER B ON A.mem_no = B.mem_no
+         <where>
+        <if test="memNo != null and memNo != ''">
+            AND B.MEM_NO LIKE '%' || #{memNo} || '%'
+        </if>
+
+        <if test="fullName != null and fullName != ''">
+            AND LOWER(B.MEM_FIRST_NAME || B.MEM_LAST_NAME) LIKE '%' || LOWER(#{fullName}) || '%'
+        </if>
+
+        <if test="memNicknm != null and memNicknm != ''">
+            AND B.MEM_NICKNM LIKE '%' || #{memNicknm} || '%'
+        </if>
+
+        <if test="memEmail != null and memEmail != ''">
+            AND B.MEM_EMAIL LIKE '%' || #{memEmail} || '%'
+        </if>
+
+        <if test="memTelno != null and memTelno != ''">
+            AND B.MEM_TELNO LIKE '%' || #{memTelno} || '%'
+        </if>
+
+        <if test="memBirth != null and memBirth != ''">
+            AND B.MEM_BIRTH LIKE '%' || #{memBirth} || '%'
+        </if>
+
+        <if test="startDate != null and startDate != ''">
+            AND A.REPORT_REG_DT <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+        </if>
+
+        <if test="endDate != null and endDate != ''">
+            AND A.REPORT_REG_DT <![CDATA[<=]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+        </if>
+
+        <if test="snsMemYn != null and snsMemYn != '' and snsMemYn != 'all'">
+            AND B.SNS_MEM_YN = #{snsMemYn}
+        </if>
+
+        <if test="memStatSecCodeNo != null and memStatSecCodeNo != '' and memStatSecCodeNo != 'all'">
+            AND B.MEM_STAT_SEC_CODE_NO = #{memStatSecCodeNo}
+        </if>
+
+        <if test="memSecCodeNo != null and memSecCodeNo != '' and memSecCodeNo != 'all'">
+            AND B.MEM_SEC_CODE_NO = #{memSecCodeNo}
+        </if>
+
+        <if test="reportGubun != null and reportGubun != '' and reportGubun != 'all'">
+            AND A.REPORT_GUBUN = #{reportGubun}
+        </if>
+
+        <if test="reportResult != null and reportResult != '' and reportResult != 'all'">
+            AND A.REPORT_RESULT = #{reportResult}
+        </if>
+
+        <if test="reportDelYn != null and reportDelYn != '' and reportDelYn != 'all'">
+            AND A.REPORT_DEL_YN = #{reportDelYn}
+        </if>
+    </where>
+
+ORDER BY A.report_reg_dt DESC
+         
+	</select>
+</mapper>

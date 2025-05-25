@@ -1,0 +1,33 @@
+package com.ohot.vo;
+
+import java.util.Date;
+
+import com.ohot.home.inquiry.vo.InquiryPostVO;
+
+import lombok.Data;
+
+@Data
+public class BoardPostVO {
+	private int fileGroupNo;
+	private int parentPostNo; // 자기참조 (문의게시글 필요)
+	private int bbsPostNo;
+	private int bbsTypeCdNo;
+	private String bbsTitle;
+	private String bbsCn;
+	private Date bbsRegDt;
+	private Date bbsChgDt;
+	private String bbsDelYn;
+	private int bbsInqCnt;
+	private int artGroupNo;
+	
+	// 게시판명
+	private String bbsNm;
+	
+	// 이미지 경로
+	private String fileSaveLocate;
+	
+	// BOARD_POST : INQUIRY_POST = 1 : 1
+	private InquiryPostVO inquiryPostVO;
+	// BOARD_POST : FILE_GROUP = 1 : 1
+	private FileGroupVO fileGroupVO;
+}

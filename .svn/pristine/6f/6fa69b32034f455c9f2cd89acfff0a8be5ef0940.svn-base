@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weverse Style Fan Feed</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .navbar {
+      background-color: #77a300;
+    }
+    .navbar-brand, .nav-link {
+      color: white;
+    }
+    .nav-link:hover {
+      color: #d4f09e;
+    }
+    .fan-card {
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .profile-img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+    .tempest-box {
+      background: linear-gradient(135deg, #7fd633, #a1e66d);
+      border-radius: 15px;
+      padding: 1rem;
+      color: white;
+      text-align: center;
+    }
+    .tempest-box img {
+      border-radius: 10px;
+      width: 100%;
+    }
+    .post-img {
+      width: 100%;
+      border-radius: 15px;
+      margin-top: 1rem;
+    }
+    .flicking-container {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 1rem;
+  scroll-snap-type: x mandatory;
+}
+
+.flicking-wrapper {
+  display: flex;
+  gap: 12px;
+}
+
+.comment-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  width: 300px;
+  min-width: 300px;
+  scroll-snap-align: start;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.comment-card:hover {
+  transform: scale(1.03);
+}
+
+.profile img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  margin-right: 10px;
+}
+
+.text .name {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.text .badge {
+  color: #1d74f5;
+  font-size: 0.9rem;
+  margin-left: 4px;
+}
+
+.text .message {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+  </style>
+  
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="#">Fan</a>
+      <a class="nav-link" href="#">Artist</a>
+      <a class="nav-link" href="#">Media</a>
+      <a class="nav-link" href="#">LIVE</a>
+    </div>
+  </nav>
+
+<div class="flicking-container">
+  <div class="flicking-wrapper">
+    <div class="comment-card">
+      <div class="profile">
+        <img src="https://phinf.wevpstatic.net/MjAyNTAzMThfNTkg/MDAxNzQyMjk1NjUzODQ5.1pgUvvBtwe4JPTPe4CDRTydLkUGLPTjuU1TIKuCGHMsg.XzHWXJ0FKwWSDCw8whGQvlBAskPtgdFzvURqrdIO9aUg.JPEG/4a15e979-f230-448d-8f9a-43c08515666d.jpeg?type=s92" alt="프로필">
+      </div>
+      <div class="text">
+        <strong class="name">태래 ⭐️ <span class="badge">✔</span></strong>
+        <p class="message">그래그래❤️</p>
+      </div>
+    </div>
+
+    <!-- 반복적인 카드들 -->
+    <!-- ... -->
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

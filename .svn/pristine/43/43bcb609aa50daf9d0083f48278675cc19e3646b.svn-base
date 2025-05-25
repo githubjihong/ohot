@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohot.mapper.StatsMapper">
+
+	<!-- 
+	ex) 1번 아티스트의 2025년03월 일별통계
+	 -->
+	<select id="statsList" resultType="com.ohot.vo.StatsVO">
+		SELECT SUBSTR(DM_STR_YMD, 1, 8) DM_STR_YMD
+		     , COUNT(*) CNT
+		FROM   DM_SUB 
+		WHERE  ART_NO = 1
+		AND    SUBSTR(DM_STR_YMD,1,6) = '202503'
+		GROUP BY SUBSTR(DM_STR_YMD,1,8)
+		ORDER BY 1
+	</select>
+	
+	<select id="listBarAjax" resultType="com.ohot.vo.StatsVO">
+		SELECT TO_CHAR(REPLY_CREATE_DT, 'YYYYMMDD') AS REPLY_CREATE_DT,
+		       COUNT(*) AS CNT2
+		FROM   COMMUNITY_REPLY
+		WHERE  TO_CHAR(REPLY_CREATE_DT, 'YYYY') = '2025'
+		GROUP BY TO_CHAR(REPLY_CREATE_DT, 'YYYYMMDD')
+		ORDER BY 1
+	</select>
+	
+	<select id="listdoughnutAjax" resultType="com.ohot.vo.StatsVO">
+		SELECT SUBSTR(TK_START_YMD, 1, 6) TK_START_YMD
+		            , COUNT(*) CNT3
+		FROM   TICKET
+		WHERE  GDS_NO = 1
+		AND    SUBSTR(TK_START_YMD, 1, 4) = '2025'
+		GROUP BY SUBSTR(TK_START_YMD, 1, 6)
+		ORDER BY 1
+		
+	</select>
+	<select id="SubscriptionTotal" resultType="com.ohot.vo.StatsVO">
+		SELECT SUM(CNT) AS TOTAL_CNT
+		FROM (
+		    SELECT SUBSTR(DM_STR_YMD, 1, 8) DM_STR_YMD
+		         , COUNT(*) CNT
+		    FROM   DM_SUB 
+		    WHERE    SUBSTR(DM_STR_YMD, 1, 4) = '2025'
+		    GROUP BY SUBSTR(DM_STR_YMD, 1, 8)
+		)
+		
+	</select>
+	<select id="SubscriptionTotal2" resultType="com.ohot.vo.StatsVO">
+		SELECT SUM(CNT) AS TOTAL_CNT2
+		FROM (
+		    SELECT SUBSTR(JOIN_YMD, 1, 8) JOIN_YMD
+		         , COUNT(*) CNT
+		    FROM   MEMBER 
+		    WHERE    SUBSTR(JOIN_YMD, 1, 4) = '2025'
+		    GROUP BY SUBSTR(JOIN_YMD, 1, 8)
+		)
+	</select>
+	<select id="SubscriptionTotal3" resultType="com.ohot.vo.StatsVO">
+		SELECT COUNT(*) AS TOTAL_CNT3
+ 		 FROM FOLLOW_DETAIL
+	</select>
+	
+	<select id="SubscriptionTotal4" resultType="com.ohot.vo.StatsVO">
+		 SELECT COUNT(*) AS TOTAL_CNT4
+ 		 FROM LIKE_DETAIL
+	</select>
+</mapper>

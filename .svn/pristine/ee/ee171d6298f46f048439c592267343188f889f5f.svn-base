@@ -1,0 +1,33 @@
+package com.ohot.api.controller;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.ohot.util.UploadController;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+public class CkEditorFileController {
+
+	@Autowired
+	UploadController uploadController;
+	
+	@ResponseBody
+	@PostMapping("/ckEditor/uploadImage")
+	public Map<String, Object> uploadImage(@RequestParam MultipartFile[] files) {
+		log.info("uploadImage -> files : " + files);
+		
+		long fileGroupNo = uploadController.multiImageUpload(files);
+		log.info("fileGroupNo : " + fileGroupNo);
+		
+		return null;
+	}
+}

@@ -1,0 +1,276 @@
+package com.ohot.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ohot.mapper.UsersMapper;
+import com.ohot.service.MemberService;
+import com.ohot.service.impl.UserDetailsServiceImpl;
+import com.ohot.shop.vo.GoodsVO;
+import com.ohot.util.BoardPage;
+import com.ohot.vo.ArtistGroupVO;
+import com.ohot.vo.CustomUser;
+import com.ohot.vo.UsersVO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+public class HomeController {
+	
+	@Autowired
+	UsersMapper usersMapper;
+	
+	@Autowired
+	MemberService memberService;
+	
+	 @Autowired
+	 UserDetailsServiceImpl userDetailsServiceImpl;
+	 
+	// 홈페이지
+	@GetMapping("/oho")
+	public String homePage(Model model
+							, @AuthenticationPrincipal CustomUser customUser
+			) {
+		log.info("홈페이지 포워딩");
+		
+		Map<String, Object> dmMap = new HashMap<>();
+		Map<String, Object> goodsMap = new HashMap<>();
+		Map<String, Object> unMemMap = new HashMap<>();
+		Map<String, Object> joinMap = new HashMap<>();
+		Map<String, Object> unjoinMap = new HashMap<>();
+		
+		dmMap.put("join", null);
+		dmMap.put("orderby", "random");
+		dmMap.put("goodsInfo", false);
+		dmMap.put("start", 1);
+		dmMap.put("end", 10);
+		
+		List<ArtistGroupVO> dmList = this.memberService.getDmList(dmMap); // 디엠리스트
+		log.info("디엠 리스트 : " + dmList);
+		
+		if(customUser == null) { // 비회원이 홈페이지에 접속했을 경우
+			unMemMap.put("join", "no");
+			unMemMap.put("memNo", null);
+			unMemMap.put("start", 1);
+			unMemMap.put("end", 15);
+			
+			// 새로운 아티스트를 만나보세요!
+			List<ArtistGroupVO> newArtistGroupList = this.memberService.getNewArtistGroupList(unMemMap);
+			log.info("비회원의 전체 리스트 : " + newArtistGroupList);
+			
+			model.addAttribute("newArtistGroupList", newArtistGroupList);
+		}
+		else { // 회원이 홈페이지에 접속했을 경우
+			UsersVO usersVO =  customUser.getUsersVO();
+			log.info("usersVO : " + usersVO);
+			int memNo = (int) usersVO.getUserNo();
+			
+			// 가입한 그룹 리스트
+			joinMap.put("join", "yes");
+			joinMap.put("memNo", memNo);
+			joinMap.put("start", 1);
+			joinMap.put("end", 5);
+			List<ArtistGroupVO> joinArtistGroupList = this.memberService.getJoinArtistGroupList(joinMap);
+			log.info("회원이 가입한 그룹의 리스트 : " + joinArtistGroupList);
+			
+			// 가입하지 않은 그룹 리스트
+			unjoinMap.put("join", "no");
+			unjoinMap.put("memNo", memNo);
+			unjoinMap.put("start", 1);
+			unjoinMap.put("end", 15);
+			List<ArtistGroupVO> newArtistGroupList = this.memberService.getNewArtistGroupList(unjoinMap);
+			log.info("회원이 가입하지 않은 그룹의 리스트 : " + newArtistGroupList);
+			
+			// 가입한 그룹의 굿즈 정보 리스트
+			goodsMap.put("memNo", memNo);
+			goodsMap.put("artGroupNo", 0);
+			goodsMap.put("start", 1);
+			goodsMap.put("end", 15);
+			
+			List<ArtistGroupVO> artWithGoodsList = this.memberService.getArtWithGoods(memNo);
+			List<GoodsVO> goodsVOList = this.memberService.getGoodsVOList(goodsMap);
+			
+			log.info("가입한 그룹 중 굿즈가 있는 그룹 리스트 :" + artWithGoodsList);
+			log.info("굿즈 정보 리스트 :" + goodsVOList);
+			
+			model.addAttribute("joinArtistGroupList", joinArtistGroupList);
+			model.addAttribute("newArtistGroupList", newArtistGroupList);
+			model.addAttribute("artWithGoodsList", artWithGoodsList);
+			model.addAttribute("goodsVOList", goodsVOList);
+		}
+		
+		model.addAttribute("dmList", dmList);
+		
+		return "home";
+	}
+	
+	// 새로운 아티스트를 만나보세요 페이징 비동기
+	@ResponseBody
+	@GetMapping("/oho/getNewArtistGroupList")
+	public BoardPage<ArtistGroupVO> getNewArtistGroupList(
+												@AuthenticationPrincipal CustomUser customUser
+												, @RequestParam(required=true) int currentPage
+											) {
+		log.info("getNewArtistGroupList -> currentPage : " + currentPage);
+		
+		Map<String, Object> unMemMap = new HashMap<>();
+		Map<String, Object> unjoinMap = new HashMap<>();
+		
+		int pageSize = 15;
+		int start = (currentPage - 1) * pageSize + 1;
+		int end = currentPage * pageSize;
+		
+		BoardPage<ArtistGroupVO> newArtistGroupList;
+		
+		if(customUser == null) {
+			
+			unMemMap.put("join", "no");
+			unMemMap.put("memNo", null);
+			unMemMap.put("start", start);
+			unMemMap.put("end", end);
+			
+			List<ArtistGroupVO> resultList = this.memberService.getNewArtistGroupList(unMemMap);
+			int totalCnt = resultList==null? 0 : resultList.get(0).getTotalCnt();
+			newArtistGroupList = new BoardPage<>(totalCnt, currentPage, pageSize, null, resultList, null);
+			newArtistGroupList.setIsLastPage(end >= totalCnt);  // 마지막 페이지 여부 체크
+			
+			log.info("비동기 getNewArtistGroupList -> 비회원 그룹리스트 : " + newArtistGroupList);
+			
+		} else {
+			
+			int memNo = (int) customUser.getUsersVO().getUserNo();
+			log.info("비동기 getNewArtistGroupList -> memNo : " + memNo);
+			
+			// 가입하지 않은 그룹 리스트
+			unjoinMap.put("join", "no");
+			unjoinMap.put("memNo", memNo);
+			unjoinMap.put("start", start);
+			unjoinMap.put("end", end);
+			List<ArtistGroupVO> resultList = this.memberService.getNewArtistGroupList(unjoinMap);
+			
+			int totalCnt = resultList.isEmpty() ? 0 : resultList.get(0).getTotalCnt();
+			newArtistGroupList = new BoardPage<>(totalCnt, currentPage, pageSize, null, resultList, null);
+			newArtistGroupList.setIsLastPage(end >= totalCnt);  // 마지막 페이지 여부 체크
+			log.info("비동기 getNewArtistGroupList -> 회원이 가입하지 않은 그룹의 리스트 : " + newArtistGroupList);
+			
+		}
+		
+		return newArtistGroupList;
+	}
+	
+	// 가입한 그룹 리스트 페이징 비동기
+	@ResponseBody
+	@GetMapping("/oho/getJoinArtistGroupList")
+	public BoardPage<ArtistGroupVO> getjoinArtistGroupList(
+											@AuthenticationPrincipal CustomUser customUser
+											, @RequestParam(required=true) int currentPage
+										) {
+		log.info("비동기 getjoinArtistGroupList -> currentPage : " + currentPage);
+		
+		Map<String, Object> joinMap = new HashMap<>();
+		
+		int pageSize = 5;
+		int start = (currentPage - 1) * pageSize + 1;
+		int end = currentPage * pageSize;
+		
+		BoardPage<ArtistGroupVO> joinArtistGroupList = null;
+		
+		// 가입한 그룹 리스트
+		if(customUser != null) {
+			int memNo = (int) customUser.getUsersVO().getUserNo();
+			joinMap.put("join", "yes");
+			joinMap.put("memNo", memNo);
+			joinMap.put("start", start);
+			joinMap.put("end", end);
+			
+			List<ArtistGroupVO> resultList = this.memberService.getJoinArtistGroupList(joinMap);
+			int totalCnt = resultList.isEmpty() ? 0 : resultList.get(0).getTotalCnt();
+			joinArtistGroupList = new BoardPage<>(totalCnt, currentPage, pageSize, null, resultList, null);
+			joinArtistGroupList.setIsLastPage(end >= totalCnt);  // 마지막 페이지 여부 체크
+			log.info("비동기 getjoinArtistGroupList -> 회원이 가입한 그룹의 리스트 : " + joinArtistGroupList);
+		}
+		
+		return joinArtistGroupList;
+	}
+	
+	// 굿즈샵 리스트 비동기
+	@ResponseBody
+	@PostMapping("/oho/getGoodsList")
+	public List<GoodsVO> getGoodsList(@RequestBody Map<String, Object> data
+										, Model model
+			) {
+		log.info("getGoodsList -> data : " + data);
+		
+		Map<String, Object> map = new HashMap<>();
+		int memNo = Integer.parseInt(data.get("memNo").toString());
+		log.info("memNo : " + memNo);
+
+		map.put("memNo", memNo);
+		
+		if(data.get("artGroupNo") != null) {
+			int artGroupNo = Integer.parseInt(data.get("artGroupNo").toString());
+			log.info("artGroupNo : " + artGroupNo);
+			
+			if("0".equals(data.get("artGroupNo").toString())) { // artGroupNo=0 ===> 전체 리스트 출력
+				// 전체 리스트 출력이어서 범위 지정
+				map.put("start", 1);
+				map.put("end", 15);
+				map.put("artGroupNo", artGroupNo);
+			}else {
+				map.put("artGroupNo", artGroupNo);
+			}
+		}
+		
+		List<GoodsVO> goodsList = this.memberService.getGoodsVOList(map);
+		log.info("getGoodsList -> goodsList :" + goodsList);
+		
+		return goodsList;
+	}
+	
+	// DM List 리렌더링
+	@ResponseBody
+	@GetMapping("/oho/getDMList")
+	public List<ArtistGroupVO> getDMList(Model model) {
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("join", null);
+		map.put("orderby", "random");
+		
+		List<ArtistGroupVO> dmList = this.memberService.getDmList(map);
+		
+		return dmList;
+	}
+	
+	@ResponseBody
+	@GetMapping("/oho/searchArtGroupList")
+	public List<ArtistGroupVO> searchArtGroupList(@RequestParam String keyword) {
+		
+		log.info("검색 키워드 확인 : " + keyword);
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("keyword", keyword.trim());
+		map.put("join", null);
+		
+		List<ArtistGroupVO> searchArtGroupList = this.memberService.getDmList(map);
+		log.info("검색된 그룹 리스트", searchArtGroupList);
+		
+		return searchArtGroupList;
+	}
+	
+	
+	
+	
+}
+

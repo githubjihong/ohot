@@ -1,0 +1,66 @@
+package com.ohot.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ohot.employee.vo.EmployeeScheduleVO;
+import com.ohot.mapper.UsersMapper;
+import com.ohot.service.UsersService;
+import com.ohot.vo.MemberVO;
+import com.ohot.vo.UsersVO;
+
+@Service
+public class UsersServiceImpl implements UsersService{
+
+	@Autowired
+	UsersMapper usersMapper;
+	
+	// 카카오 이메일로 사용자 정보 찾기
+	@Override
+	public UsersVO findByKakaoEmail(String userMail) {
+		
+		return this.usersMapper.findByEmail(userMail);
+	}
+
+	// 이메일로 memberVO 조회
+	@Override
+	public MemberVO findByEmailMember(String userMail) {
+		return this.usersMapper.findByEmailMember(userMail);
+	}
+
+	// EMPLOYEE 개인 스케줄 불러오기
+	@Override
+	public List<EmployeeScheduleVO> getEmployeeSchedule(long empNo) {
+		return this.usersMapper.getEmployeeSchedule(empNo);
+	}
+
+	// EMPLOYEE 개인 스케줄 등록
+	@Override
+	public void addEmployeeSchedule(EmployeeScheduleVO employeeScheduleVO) {
+		this.usersMapper.addEmployeeSchedule(employeeScheduleVO);
+	}
+
+	// EMPLOYEE 개인 스케줄 수정
+	@Override
+	public void editEmployeeSchedule(EmployeeScheduleVO employeeScheduleVO) {
+		this.usersMapper.editEmployeeSchedule(employeeScheduleVO);
+	}
+
+	// EMPLOYEE 개인 스케줄 삭제
+	@Override
+	public int deleteEmployeeSchedule(int employeeScheduleNo) {
+		return this.usersMapper.deleteEmployeeSchedule(employeeScheduleNo);
+	}
+
+//	// EMPLOYEE 부서 스케줄 수정
+//
+//	// EMPLOYEE 부서 스케줄 등록
+//	@Override
+//	public void insertDepartmentSchedule(Map<String, Object> map) {
+//		this.usersMapper.insertDepartmentSchedule(map);
+//	}
+	
+}

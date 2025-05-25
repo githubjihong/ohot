@@ -1,0 +1,24 @@
+package com.ohot.home.media.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ohot.home.media.mapper.MediaLiveBoardMapper;
+import com.ohot.home.media.service.MediaLiveBoardService;
+import com.ohot.home.media.vo.MediaPostVO;
+
+@Service
+public class MediaLiveBoardServiceImpl implements MediaLiveBoardService{
+
+	@Autowired
+	MediaLiveBoardMapper mediaLiveBoardMapper; 
+	
+	@Override
+	public List<MediaPostVO> getMediaList() {
+		
+		return mediaLiveBoardMapper.getMediaList();
+	}
+
+}

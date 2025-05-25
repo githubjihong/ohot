@@ -1,0 +1,41 @@
+package com.ohot.employee.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.ohot.employee.vo.ApprovedConcertPlanVO;
+import com.ohot.employee.vo.AtrzDocVO;
+import com.ohot.employee.vo.AtrzLineVO;
+import com.ohot.employee.vo.AtrzRefVO;
+import com.ohot.employee.vo.DepartmentVO;
+
+@Mapper
+public interface EmployeeMapper {
+
+	public List<DepartmentVO> treeList();
+
+	public int atrzDocInsert(AtrzDocVO atrzDocVO);
+
+	public int approvedConcertPlanInsert(ApprovedConcertPlanVO approvedConcertPlanVO);
+
+	public String atrzDocSelectKey(AtrzDocVO atrzDocVO);
+
+	public void atrzLineInsert(AtrzLineVO atrzLineVO);
+
+	public void atrzRefInsert(AtrzRefVO atrzRefVO);
+
+	public DepartmentVO atrzDocDetail(String atrzDocNo);
+
+	public ApprovedConcertPlanVO aprrovedConcertPlanDetail(String atrzDocNo);
+
+	public List<DepartmentVO> atrzRefDetail(String atrzDocNo);
+
+	public List<DepartmentVO> atrzLineDetail(String atrzDocNo);
+
+	public List<DepartmentVO> atrzAllList(AtrzLineVO atrzLineVO);
+
+	public int atrzLineUpdate(AtrzLineVO atrzLineVO);
+
+
+}

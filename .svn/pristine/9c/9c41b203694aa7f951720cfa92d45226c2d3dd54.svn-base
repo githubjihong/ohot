@@ -1,0 +1,13 @@
+package com.ohot.employee.vo;
+
+import lombok.Data;
+
+@Data
+public class AtrzRefVO {
+
+	private int atrzRefNo;
+	private int refEmpNo;
+	private int atrzDocNo;
+	private String atrzIdntyYn;
+	private String refJbgdCd;
+}

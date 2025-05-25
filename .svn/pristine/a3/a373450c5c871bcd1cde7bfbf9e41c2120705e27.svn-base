@@ -1,0 +1,37 @@
+package com.ohot.api.service.impl;
+
+import java.io.IOException;
+
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.stereotype.Component;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+public class CustomOAuth2FailureHandler implements AuthenticationFailureHandler {
+
+	@Override
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException {
+
+		 if (exception instanceof OAuth2AuthenticationException) {
+	            String errorCode = ((OAuth2AuthenticationException) exception).getError().getErrorCode();
+
+	            if ("UNREGISTERED_USER".equals(errorCode)) {
+	                String email = (String) request.getSession().getAttribute("KAKAO_EMAIL");
+	                log.info("onAuthenticationFailure -> email : " + email);
+	                response.sendRedirect("/signup");
+	                return;
+	            }
+	        }
+
+	        response.sendRedirect("/login?error");
+	    }
+
+}

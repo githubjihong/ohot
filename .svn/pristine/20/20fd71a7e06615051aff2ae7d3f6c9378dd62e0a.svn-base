@@ -1,0 +1,25 @@
+package com.ohot.home.live.mapper;
+
+import java.util.List;
+
+import com.ohot.home.live.vo.StreamVO;
+
+public interface StreamsMapper {
+
+	public int createStream(StreamVO streamVO);
+	
+	// 방송 정보 조회
+	public StreamVO getStream(int streamNo);
+	
+	public int updateStream(StreamVO stream);
+	
+	// 시청자수 1 증가 
+    //void incrementViewerCount(@Param("streamNo") Long streamNo);
+   
+	// 시청자수 1 감소
+    //void decrementViewerCount(@Param("streamNo") Long streamNo);
+    
+    // 라이브 목록
+    List<StreamVO> selectLiveStreams();
+	
+}

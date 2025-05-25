@@ -1,0 +1,8 @@
+package com.ohot.shop.service;
+
+import com.ohot.shop.vo.OrdersVO;
+import com.ohot.vo.SeqGeneratorVO;
+
+public interface PaymentService {
+	public int ordersInsert(OrdersVO ordersVO, SeqGeneratorVO seqGeneratorVO);
+}

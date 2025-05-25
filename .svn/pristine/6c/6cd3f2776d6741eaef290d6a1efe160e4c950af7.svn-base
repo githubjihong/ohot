@@ -1,0 +1,53 @@
+package com.ohot.util.webSocket;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketMessage;
+import org.springframework.web.socket.WebSocketSession;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class DmWebSocketHandler implements WebSocketHandler {
+	
+	///stomp 방법으로 바뀌면서 사용 x
+	
+	private static final Set<WebSocketSession> dmSessions = Collections.synchronizedSet(new HashSet<>());
+
+
+	@Override
+	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+
+		dmSessions.add(session);
+		log.debug("채팅사용자 연결: "+session.getId());
+	}
+
+	@Override
+	public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean supportsPartialMessages() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}
